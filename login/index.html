@@ -147,21 +147,20 @@
 
     <footer>© 2025 TradersXauusd | Aman & terenkripsi</footer>
 
-    <!-- Supabase SDK -->
+   <!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- Supabase Config -->
-<script src="/login/supabase.js"></script>
+<script src="./supabase.js"></script>
 
 <script>
+document.addEventListener("DOMContentLoaded", async () => {
   const email = document.getElementById("email");
   const password = document.getElementById("password");
   const loginBtn = document.getElementById("loginBtn");
   const switchMode = document.getElementById("switchMode");
   const message = document.getElementById("message");
+
   let mode = "login";
 
-  // Mode login / daftar toggle
   switchMode.addEventListener("click", () => {
     mode = mode === "login" ? "register" : "login";
     loginBtn.textContent = mode === "login" ? "Login" : "Daftar";
@@ -172,10 +171,10 @@
     message.textContent = "";
   });
 
-  // Tombol login/daftar
   loginBtn.addEventListener("click", async () => {
     const userEmail = email.value.trim();
     const userPassword = password.value.trim();
+
     if (!userEmail || !userPassword) {
       message.textContent = "⚠️ Lengkapi email dan password!";
       message.style.color = "#ff7575";
@@ -202,35 +201,30 @@
       } else {
         message.textContent =
           mode === "login"
-            ? "✅ Login sukses, mengarahkan..."
-            : "✅ Akun berhasil dibuat! Silakan login.";
+            ? "✅ Login sukses! Mengarahkan..."
+            : "✅ Akun dibuat! Silakan login.";
         message.style.color = "#00ff7f";
-
-        if (mode === "login") {
-          setTimeout(() => (window.location.href = "/"), 1000);
-        } else {
-          mode = "login";
-          loginBtn.textContent = "Login";
-          switchMode.textContent = "Belum punya akun? Daftar di sini";
-        }
+        setTimeout(() => {
+          window.location.replace("/");
+        }, 800);
       }
     } catch (err) {
       message.textContent = "⚠️ Terjadi kesalahan koneksi.";
+      message.style.color = "#ff7575";
       console.error(err);
     }
   });
 
-  // Auto redirect kalau sudah login
-  document.addEventListener("DOMContentLoaded", async () => {
-    const { data } = await supabaseClient.auth.getUser();
-    if (data?.user) window.location.href = "/";
-  });
-
-      // Auto redirect jika sudah login
-      document.addEventListener("DOMContentLoaded", async () => {
-        const { data } = await supabaseClient.auth.getUser();
-        if (data?.user) window.location.href = "/";
-      });
+  // Auto-redirect jika sudah login
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data?.session?.user) {
+      window.location.replace("/");
+    }
+  } catch (err) {
+    console.error("Auto login check error:", err);
+  }
+});
 
       // Animasi Partikel
       const c = document.getElementById("particles");
@@ -272,5 +266,6 @@
     </script>
   </body>
 </html>
+
 
 
