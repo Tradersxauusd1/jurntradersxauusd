@@ -1375,26 +1375,20 @@ window.addEventListener('load', async () => {
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const { data, error } = await supabaseClient.auth.getUser();
-
-    if (error) {
-      console.warn("Auth error:", error.message);
-      return (window.location.href = "login.html");
-    }
-
-    // User belum login
-    if (!data?.user) {
+    if (error || !data.user) {
       console.log("Belum login");
-      return (window.location.href = "login.html");
+      return (window.location.href = "login/");
     }
-
     console.log("✅ Login sebagai:", data.user.email);
   } catch (err) {
     console.error("Gagal ambil data user:", err);
-    window.location.href = "login.html";
+    window.location.href = "login/";
   }
 });
+
 
 </script>
 </body>
 </html>
+
 
