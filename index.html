@@ -1368,27 +1368,39 @@ window.addEventListener('load', async () => {
 </script>
 
 <!-- Auto-Redirect Check + Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/login/supabase.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+  // beri delay kecil untuk memastikan Supabase sempat load session
+  await new Promise(r => setTimeout(r, 400));
+
   try {
     const { data, error } = await supabaseClient.auth.getUser();
-    if (error || !data.user) {
-      console.log("Belum login");
-      return (window.location.href = "login/");
+
+    if (error) {
+      console.warn("Auth error:", error.message);
+      localStorage.removeItem("sb-tradersxauusd-session");
+      return (window.location.href = "/login/");
     }
-    console.log("✅ Login sebagai:", data.user.email);
+
+    if (!data?.user) {
+      console.log("Belum login");
+      return (window.location.href = "/login/");
+    }
+
+    console.log("✅ Login aktif:", data.user.email);
+    document.getElementById("netStatus").textContent = `☁️ ${data.user.email}`;
   } catch (err) {
-    console.error("Gagal ambil data user:", err);
-    window.location.href = "login/";
+    console.error("Auth gagal:", err);
+    window.location.href = "/login/";
   }
 });
-
-
 </script>
+
 </body>
 </html>
+
 
 
