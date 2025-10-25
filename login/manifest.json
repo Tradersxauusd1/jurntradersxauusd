@@ -1,7 +1,7 @@
 {
   "name": "Jurnal TradersXauusd",
-  "short_name": "Jurnal XAUUSD",
-  "description": "Catatan dan rekap trading emas harian untuk trader profesional dan pemula.",
+  "short_name": "Jurnal Trading",
+  "description": "Catatan dan rekap trading harian untuk trader profesional dan pemula.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",
@@ -21,3 +21,4 @@
     }
   ]
 }
+
