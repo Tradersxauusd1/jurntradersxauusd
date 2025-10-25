@@ -1,11 +1,11 @@
 /* =====================================================
-   Service Worker - TradersXauusd Journal (Offline + Login Ready)
+   Service Worker - TradersXauusd Journal (Final Stable Build)
    ===================================================== */
 
-const CACHE_NAME = "tradersxauusd-journal-v3";
+const CACHE_NAME = "tradersxauusd-journal-v4";
 
 const ASSETS_TO_CACHE = [
-  "/", // root
+  "/", 
   "/index.html",
   "/manifest.json",
   "/popup-ads.js",
@@ -17,9 +17,9 @@ const ASSETS_TO_CACHE = [
   "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
 ];
 
-// INSTALL — cache assets penting
+// Install cache
 self.addEventListener("install", (event) => {
-  console.log("⚙️ Service Worker: installing...");
+  console.log("⚙️ SW: Installing...");
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(ASSETS_TO_CACHE))
@@ -27,15 +27,15 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// ACTIVATE — hapus cache lama
+// Activate cache
 self.addEventListener("activate", (event) => {
-  console.log("🔄 Service Worker: activating...");
+  console.log("🔄 SW: Activating...");
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
-            console.log("🧹 Menghapus cache lama:", key);
+            console.log("🧹 SW: Menghapus cache lama:", key);
             return caches.delete(key);
           }
         })
@@ -45,7 +45,7 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// FETCH — ambil cache dulu, baru ke network
+// Fetch handler
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
@@ -56,24 +56,37 @@ self.addEventListener("fetch", (event) => {
         .then((response) => {
           if (!response || response.status !== 200) return response;
           const cloned = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, cloned);
-          });
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, cloned));
           return response;
         })
-        .catch(() => {
-          if (event.request.destination === "document") {
-            return caches.match("/index.html");
-          }
-        });
+        .catch(() => caches.match("/index.html"));
     })
   );
 });
 
-// CLEAR CACHE MANUAL
+// Clear cache manual
 self.addEventListener("message", (event) => {
   if (event.data === "clearCache") {
     caches.keys().then((keys) => keys.forEach((key) => caches.delete(key)));
-    console.log("🧽 Cache dibersihkan manual.");
+    console.log("🧽 SW: Cache dibersihkan manual.");
+  }
+});
+
+// 🔔 Notifikasi online/offline otomatis
+self.addEventListener("sync", () => {
+  self.clients.matchAll().then((clients) => {
+    clients.forEach((client) => {
+      client.postMessage({ status: "online" });
+    });
+  });
+});
+
+self.addEventListener("fetch", (event) => {
+  if (!navigator.onLine) {
+    self.clients.matchAll().then((clients) => {
+      clients.forEach((client) => {
+        client.postMessage({ status: "offline" });
+      });
+    });
   }
 });
