@@ -1377,19 +1377,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.body.style.transition = "opacity 0.3s ease";
 
   try {
-    await new Promise((r) => setTimeout(r, 400));
-    const { data, error } = await supabaseClient.auth.getSession();
+    // Tunggu sampai Supabase siap
+    await new Promise(resolve => {
+      const waitForSupabase = setInterval(() => {
+        if (window.supabaseClient?.auth) {
+          clearInterval(waitForSupabase);
+          resolve();
+        }
+      }, 100);
+    });
 
-    if (error || !data?.session?.user) {
-      console.warn("⚠️ Tidak ada session, redirect ke login...");
+    // Delay tambahan supaya session sempat di-load
+    await new Promise(r => setTimeout(r, 300));
+
+    // Cek session aktif
+    const { data: sessionData, error } = await supabaseClient.auth.getSession();
+
+    if (error) throw error;
+
+    const session = sessionData?.session;
+    if (!session || !session.user) {
+      console.warn("⚠️ Tidak ada session, arahkan ke login...");
       localStorage.removeItem("sb-tradersxauusd-session");
       window.location.replace("/login/");
       return;
     }
 
-    const user = data.session.user;
+    const user = session.user;
     console.log("✅ Login aktif:", user.email);
 
+    // Update indikator status
     const syncStatus = document.getElementById("syncStatus");
     if (syncStatus) {
       syncStatus.textContent = `☁️ Online — ${user.email}`;
@@ -1399,6 +1416,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.body.style.opacity = "1";
   } catch (err) {
     console.error("❌ Auth error:", err);
+    localStorage.removeItem("sb-tradersxauusd-session");
     window.location.replace("/login/");
   }
 });
@@ -1406,6 +1424,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 </body>
 </html>
+
 
 
 
