@@ -147,73 +147,84 @@
 
     <footer>© 2025 TradersXauusd | Aman & terenkripsi</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="/login/supabase.js"></script>
+    <!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script>
-      const email = document.getElementById("email");
-      const password = document.getElementById("password");
-      const loginBtn = document.getElementById("loginBtn");
-      const switchMode = document.getElementById("switchMode");
-      const message = document.getElementById("message");
-      let mode = "login";
+<!-- Supabase Config -->
+<script src="/login/supabase.js"></script>
 
-      switchMode.addEventListener("click", () => {
-        mode = mode === "login" ? "register" : "login";
-        loginBtn.textContent = mode === "login" ? "Login" : "Daftar";
-        switchMode.textContent =
+<script>
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const loginBtn = document.getElementById("loginBtn");
+  const switchMode = document.getElementById("switchMode");
+  const message = document.getElementById("message");
+  let mode = "login";
+
+  // Mode login / daftar toggle
+  switchMode.addEventListener("click", () => {
+    mode = mode === "login" ? "register" : "login";
+    loginBtn.textContent = mode === "login" ? "Login" : "Daftar";
+    switchMode.textContent =
+      mode === "login"
+        ? "Belum punya akun? Daftar di sini"
+        : "Sudah punya akun? Login di sini";
+    message.textContent = "";
+  });
+
+  // Tombol login/daftar
+  loginBtn.addEventListener("click", async () => {
+    const userEmail = email.value.trim();
+    const userPassword = password.value.trim();
+    if (!userEmail || !userPassword) {
+      message.textContent = "⚠️ Lengkapi email dan password!";
+      message.style.color = "#ff7575";
+      return;
+    }
+
+    try {
+      let response;
+      if (mode === "login") {
+        response = await supabaseClient.auth.signInWithPassword({
+          email: userEmail,
+          password: userPassword,
+        });
+      } else {
+        response = await supabaseClient.auth.signUp({
+          email: userEmail,
+          password: userPassword,
+        });
+      }
+
+      if (response.error) {
+        message.textContent = "❌ " + response.error.message;
+        message.style.color = "#ff7575";
+      } else {
+        message.textContent =
           mode === "login"
-            ? "Belum punya akun? Daftar di sini"
-            : "Sudah punya akun? Login di sini";
-        message.textContent = "";
-      });
+            ? "✅ Login sukses, mengarahkan..."
+            : "✅ Akun berhasil dibuat! Silakan login.";
+        message.style.color = "#00ff7f";
 
-      loginBtn.addEventListener("click", async () => {
-        const userEmail = email.value.trim();
-        const userPassword = password.value.trim();
-        if (!userEmail || !userPassword) {
-          message.textContent = "⚠️ Lengkapi email dan password!";
-          message.style.color = "#ff7575";
-          return;
+        if (mode === "login") {
+          setTimeout(() => (window.location.href = "/"), 1000);
+        } else {
+          mode = "login";
+          loginBtn.textContent = "Login";
+          switchMode.textContent = "Belum punya akun? Daftar di sini";
         }
+      }
+    } catch (err) {
+      message.textContent = "⚠️ Terjadi kesalahan koneksi.";
+      console.error(err);
+    }
+  });
 
-        try {
-          let response;
-          if (mode === "login") {
-            response = await supabaseClient.auth.signInWithPassword({
-              email: userEmail,
-              password: userPassword,
-            });
-          } else {
-            response = await supabaseClient.auth.signUp({
-              email: userEmail,
-              password: userPassword,
-            });
-          }
-
-          if (response.error) {
-            message.textContent = "❌ " + response.error.message;
-            message.style.color = "#ff7575";
-          } else {
-            message.textContent =
-              mode === "login"
-                ? "✅ Login sukses, mengarahkan..."
-                : "✅ Akun dibuat! Silakan login.";
-            message.style.color = "#00ff7f";
-
-            if (mode === "login") {
-              setTimeout(() => (window.location.href = "/"), 1000);
-            } else {
-              mode = "login";
-              loginBtn.textContent = "Login";
-              switchMode.textContent = "Belum punya akun? Daftar di sini";
-            }
-          }
-        } catch (err) {
-          message.textContent = "⚠️ Terjadi kesalahan koneksi.";
-          console.error(err);
-        }
-      });
+  // Auto redirect kalau sudah login
+  document.addEventListener("DOMContentLoaded", async () => {
+    const { data } = await supabaseClient.auth.getUser();
+    if (data?.user) window.location.href = "/";
+  });
 
       // Auto redirect jika sudah login
       document.addEventListener("DOMContentLoaded", async () => {
@@ -261,4 +272,5 @@
     </script>
   </body>
 </html>
+
 
