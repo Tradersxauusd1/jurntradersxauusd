@@ -1,13 +1,2 @@
-# ✅ Allow static files to be served directly
-/index.html
-/manifest.json
-/robots.txt
-/sitemap.xml
-/service-worker.js
-/supabase.js
-/popup-ads.js
-/icon-192.png
-/icon-512.png
-
-# ✅ Redirect semua path lain ke index.html (fallback PWA)
-/*    /index.html   200
+/      /index.html   200
+/login /login.html   200
