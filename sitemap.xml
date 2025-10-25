@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Halaman utama -->
+  <url>
+    <loc>https://jurnaltradersxauusd.my.id/</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Jurnal trading utama (index.html sama aja dengan root, tapi biar aman untuk Googlebot) -->
+  <url>
+    <loc>https://jurnaltradersxauusd.my.id/index.html</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- PWA Assets (supaya Google index manifest dan SW) -->
+  <url>
+    <loc>https://jurnaltradersxauusd.my.id/manifest.json</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://jurnaltradersxauusd.my.id/service-worker.js</loc>
+    <lastmod>2025-10-21</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
+
+  <!-- Social link utama (biar crawler kenal integrasi brand) -->
+  <url>
+    <loc>https://t.me/marketoutlooktradersxauusd</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://tiktok.com/@tradersxauusd</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://youtube.com/tradersxauusd</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>

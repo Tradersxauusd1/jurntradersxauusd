@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Jurnal by TradersXauusd</title>
+  <link rel="icon" type="image/png" href="icon-192.png">
+
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+    :root {--gold:#ffd65a;}
+
+    body {
+      height:100vh;
+      background: radial-gradient(circle at top, #1a1a1a, #000);
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .login-card {
+      position:relative;
+      background:rgba(25,25,25,0.85);
+      border:1px solid rgba(255,214,90,0.3);
+      border-radius:16px;
+      padding:45px 60px;
+      text-align:center;
+      box-shadow:0 0 30px rgba(255,214,90,0.15);
+      animation:slideUp 1s ease-out;
+      z-index:2;
+      width:400px;
+      max-width:90%;
+      opacity:0;
+      transform:translateY(40px);
+      transition:opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .login-card.visible {
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .login-card::before {
+      content:'';
+      position:absolute;
+      inset:-3px;
+      background:linear-gradient(45deg,#ffd65a,#d4af37,#000,#ffd65a);
+      background-size:300%;
+      z-index:-1;
+      filter:blur(25px);
+      opacity:0.25;
+      animation:glowing 8s linear infinite;
+    }
+
+    h2 {color:var(--gold);font-size:24px;font-weight:700;margin-bottom:10px;}
+    p.subtitle {color:#ccc;font-size:14px;margin-bottom:30px;}
+
+    .google-btn {
+      background:#fff;
+      color:#000;
+      border:none;
+      padding:12px 20px;
+      border-radius:8px;
+      font-weight:600;
+      font-size:15px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      transition:0.3s;
+      width:100%;
+      position:relative;
+    }
+    .google-btn:hover {
+      transform:scale(1.05);
+      box-shadow:0 0 15px rgba(255,214,90,0.4);
+    }
+    .google-btn img {width:22px;height:22px;}
+
+    .spinner {
+      position:absolute;
+      right:14px;
+      top:50%;
+      transform:translateY(-50%);
+      width:20px;
+      height:20px;
+      border:2px solid #000;
+      border-top:2px solid transparent;
+      border-radius:50%;
+      animation:spin 0.8s linear infinite;
+      display:none;
+    }
+    @keyframes spin {to {transform:translateY(-50%) rotate(360deg);} }
+
+    .fade-overlay {
+      position:fixed;
+      inset:0;
+      background:#ffd65a;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.8s ease;
+      z-index:10;
+    }
+    .fade-overlay.active {opacity:1;pointer-events:auto;}
+
+    .follow-container {
+      margin-top:32px;
+      text-align:center;
+      animation:fadeIn 1.5s ease;
+    }
+    @keyframes fadeIn {from {opacity:0;transform:translateY(20px);} to {opacity:1;transform:translateY(0);} }
+
+    .follow-container h3 {
+      color:var(--gold);
+      margin-bottom:14px;
+      font-size:16px;
+      letter-spacing:0.3px;
+      font-weight:600;
+    }
+
+    .follow-container a.main-link {
+      display:inline-block;
+      color:var(--gold);
+      font-weight:700;
+      text-decoration:none;
+      padding:10px 18px;
+      border:1px solid var(--gold);
+      border-radius:10px;
+      transition:0.3s;
+      font-size:0.95rem;
+      margin-bottom:12px;
+    }
+    .follow-container a.main-link:hover {
+      background:var(--gold);
+      color:#000;
+      transform:translateY(-2px);
+      box-shadow:0 0 8px rgba(255,214,90,0.5);
+    }
+
+    .follow-links {
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+      gap:10px;
+      justify-content:center;
+      max-width:300px;
+      margin:0 auto;
+    }
+
+    .follow-links a {
+      color:var(--gold);
+      font-weight:600;
+      text-decoration:none;
+      padding:8px 10px;
+      border:1px solid var(--gold);
+      border-radius:8px;
+      transition:0.3s;
+      font-size:0.9rem;
+    }
+
+    .follow-links a:hover {
+      background:var(--gold);
+      color:#000;
+      transform:translateY(-2px);
+      box-shadow:0 0 6px rgba(255,214,90,0.4);
+    }
+
+    footer {margin-top:18px;color:#888;font-size:13px;text-align:center;}
+
+    .support-box {margin-top:18px;text-align:center;animation:fadeIn 1.5s ease;}
+    .support-link {
+      display:inline-flex;align-items:center;justify-content:center;gap:10px;
+      background:rgba(255,214,90,0.12);color:var(--gold);font-weight:600;
+      padding:10px 18px;border:1px solid rgba(255,214,90,0.4);border-radius:12px;
+      box-shadow:0 0 8px rgba(255,214,90,0.15);transition:all 0.3s ease;
+      max-width:320px;width:90%;animation:breathingGlow 5s ease-in-out infinite;
+    }
+    .support-link:hover {background:rgba(255,214,90,0.25);transform:translateY(-2px);box-shadow:0 0 14px rgba(255,214,90,0.4);}
+    @keyframes breathingGlow {0%,100%{box-shadow:0 0 10px rgba(255,214,90,0.2);}50%{box-shadow:0 0 20px rgba(255,214,90,0.5);} }
+
+    #particles {position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;}
+    @keyframes slideUp {from {opacity:0;transform:translateY(60px);} to {opacity:1;transform:translateY(0);} }
+    @keyframes glowing {0%{background-position:0% 50%;}50%{background-position:100% 50%;}100%{background-position:0% 50%;}}
+    @media (max-width:480px){
+      .login-card{padding:35px 25px;width:92%;}
+      h2{font-size:22px;}
+      .follow-container h3{font-size:15px;margin-bottom:10px;}
+      .follow-container a.main-link{font-size:0.9rem;padding:9px 14px;}
+      .follow-links{grid-template-columns:1fr 1fr;gap:8px;}
+      .follow-links a{font-size:0.85rem;padding:7px 8px;}
+      footer{font-size:12px;margin-top:10px;}
+      .support-link{font-size:0.85rem;padding:8px 12px;}
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="particles"></canvas>
+
+  <div class="login-card fade-in" id="loginCard">
+    <h2>LOGIN DULU UNTUK AKSES JURNAL</h2>
+    <p class="subtitle">Masuk ke jurnal trading kamu</p>
+
+    <button id="googleBtn" class="google-btn">
+      <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/google.svg" alt="Google">
+      Login dengan Google
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+    <p style="margin-top:15px;color:#999;font-size:13px;">🔒 Aman & terenkripsi</p>
+
+    <div class="follow-container">
+      <h3>🌐 Follow & Connect</h3>
+      <a href="https://tradersxauusd.my.id" target="_blank" class="main-link">
+        🌍 Visit Website TradersXauusd.my.id
+      </a>
+      <div class="follow-links">
+        <a href="https://t.me/marketoutlooktradersxauusd" target="_blank">💬 Telegram</a>
+        <a href="https://t.me/tradersxauusd" target="_blank">👤 Admin</a>
+        <a href="https://tiktok.com/@tradersxauusd" target="_blank">🎵 TikTok</a>
+        <a href="https://youtube.com/tradersxauusd" target="_blank">▶️ YouTube</a>
+      </div>
+    </div>
+
+    <div class="support-box">
+      <a href="http://lynk.id/tradersxauusd/s/gg485q0k32gp?utm_source=site&utm_medium=banner&utm_campaign=support_tradersxauusd"
+         target="_blank" rel="noopener noreferrer" class="support-link">
+        💛 Dukung Pengembang — bantu pengembangan fitur & server TradersXauusd
+      </a>
+    </div>
+
+    <footer>© 2025 TradersXAUUSD | Jurnal Trading BY TradersXauusd</footer>
+  </div>
+
+  <div class="fade-overlay" id="fadeOverlay"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script>
+  const googleBtn = document.getElementById("googleBtn");
+  const spinner = document.getElementById("spinner");
+  const card = document.getElementById("loginCard");
+
+  window.addEventListener("load", () => {
+    setTimeout(() => card.classList.add("visible"), 200);
+  });
+
+  document.addEventListener("DOMContentLoaded", async () => {
+    const { data } = await supabaseClient.auth.getUser();
+    if (data?.user) {
+      const overlay = document.getElementById("fadeOverlay");
+      overlay.classList.add("active");
+      setTimeout(() => (window.location.href = "index.html"), 600);
+    }
+  });
+
+  googleBtn.addEventListener("click", async () => {
+    spinner.style.display = "inline-block";
+    googleBtn.disabled = true;
+    googleBtn.style.opacity = "0.7";
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/login.html`,
+      },
+    });
+    if (error) alert("Login Google gagal: " + error.message);
+  });
+
+    // Background partikel
+    const c = document.getElementById("particles");
+    const ctx = c.getContext("2d");
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+    let particles = [];
+    for (let i = 0; i < 45; i++) {
+      particles.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+0.5,d:Math.random()*0.3+0.1});
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.fillStyle = "#ffd65a";
+      ctx.beginPath();
+      particles.forEach(p=>{
+        ctx.moveTo(p.x,p.y);
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2,true);
+      });
+      ctx.fill();
+      particles.forEach(p=>{p.y += p.d;if(p.y>c.height)p.y=0;});
+    }
+    setInterval(draw,60);
+  </script>
+
+  <script>
+window.addEventListener("DOMContentLoaded", async () => {
+  // Deteksi jika user baru balik dari Google (ada token di URL)
+  const hash = window.location.hash;
+  if (hash.includes("access_token")) {
+    console.log("🔑 Callback login terdeteksi");
+    try {
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (data.session) {
+        console.log("✅ Login sukses, arahkan ke dashboard");
+        localStorage.setItem("sb-tradersxauusd-session", JSON.stringify(data.session));
+        window.location.href = "index.html";
+        return;
+      } else if (error) {
+        console.warn("⚠️ Session error:", error.message);
+      }
+    } catch (err) {
+      console.error("Login callback error:", err.message);
+    }
+    return; // << Tambahkan ini biar gak lanjut ke blok bawah
+  }
+
+  // Kalau user sudah login sebelumnya
+  try {
+    const { data } = await supabaseClient.auth.getUser();
+    if (data?.user) {
+      console.log("🔁 Sudah login sebelumnya, arahkan ke dashboard");
+      window.location.href = "index.html";
+    }
+  } catch (e) {
+    console.error("Gagal cek user lama:", e.message);
+  }
+});
+</script>
+</body>
+</html>
