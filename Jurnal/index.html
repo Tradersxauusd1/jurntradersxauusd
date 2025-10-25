@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#d4af37" />
+  <link rel="manifest" href="./manifest.json" />
+  <!-- favicon supaya console gak ngeluh 404 -->
+  <link rel="icon" type="image/png" href="icon-192.png">
+  <title>Jurnal Trading by TradersXauusd</title>
+
+  <!-- Chart.js CDN (dipakai untuk chart) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ========== THEME & LAYOUT ========== */
+:root{
+  --bg:#070707;
+  --surface:#141414;
+  --panel:#111;
+  --gold:#d4af37;
+  --gold-glow: rgba(212,175,55,0.45);
+  --muted:#9c9c9c;
+  --profit:#00ff7f;
+  --loss:#ff4757;
+  --border: rgba(255,255,255,0.04);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial; background:linear-gradient(180deg,#060606 0%, #0c0c0c 100%);
+  color:#e6e6e6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+/* starfield */
+.stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.star{position:absolute;border-radius:50%;filter:blur(1px);opacity:.6;animation:tw 4s ease-in-out infinite alternate, move 120s linear infinite}
+@keyframes tw{0%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}100%{opacity:.3;transform:scale(.8)}}
+@keyframes move{from{transform:translateY(-10vh)}to{transform:translateY(110vh)}}
+
+/* container */
+.wrapper{max-width:1200px;margin:18px auto;padding:0 14px;position:relative;z-index:2}
+h1{font-size:2rem;text-align:center;color:var(--gold);text-shadow:0 0 10px var(--gold-glow),0 6px 30px rgba(0,0,0,0.8);margin:12px 0}
+.container{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:18px;border:1px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,0.6);}
+
+/* banners */
+.banner-slider{max-width:728px;height:90px;margin:8px auto 20px;position:relative;border-radius:10px;overflow:hidden}
+.banner-slide{position:absolute;inset:0;opacity:0;transition:opacity .9s ease;z-index:0;display:block}
+.banner-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.banner-slide.active{opacity:1;z-index:1;display:block}
+
+/* summary */
+.summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.card{background:var(--panel);padding:14px;border-radius:10px;border:1px solid var(--border);text-align:center;transition:transform .3s,box-shadow .3s;min-height:86px}
+.card:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(0,0,0,0.6)}
+.card h3{color:var(--muted);font-weight:500;margin:6px 0}
+.card p{font-size:1.25rem;font-weight:800;color:var(--gold);margin:2px 0}
+
+/* charts layout */
+.charts{display:flex;gap:18px;flex-wrap:wrap;align-items:stretch}
+.chart-box{flex:1 1 420px;min-width:320px;background:var(--panel);border-radius:10px;padding:16px;border:1px solid var(--border);box-shadow:0 6px 30px rgba(0,0,0,0.6);height:360px;display:flex;flex-direction:column}
+.chart-box h3{margin:0 0 8px;color:var(--gold);text-align:center}
+.chart-box canvas{flex:1;max-height:100%}
+
+/* form */
+#tradeForm{background:var(--panel);border-radius:10px;padding:14px;border:1px solid var(--border);margin-top:18px}
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+label{font-size:.9rem;color:var(--muted);margin-bottom:6px;display:block}
+input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);background:#171717;color:#eee}
+input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 0 8px var(--gold-glow);border-color:var(--gold)}
+textarea{min-height:64px;resize:vertical}
+.btn-row{display:flex;gap:10px;margin-top:10px}
+button{cursor:pointer;padding:10px 14px;border-radius:8px;border:none;font-weight:700}
+.btn-save{background:var(--gold);color:#000}
+.btn-calc{background:#444;color:#fff}
+.btn-clear{background:#c22323;color:#fff}
+
+/* === RESPONSIVE TRADE TABLE WRAPPER === */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.trade-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+}
+
+.trade-table th, .trade-table td {
+  padding: 10px 12px;
+  text-align: center;
+  color: #ffd65a;
+  border-bottom: 1px solid rgba(255, 214, 90, 0.15);
+}
+
+.trade-table th {
+  background: #0c0c0c;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 5; /* biar gak ketutupan isi tabel */
+}
+
+.trade-table tr:nth-child(even) {
+  background-color: rgba(255,255,255,0.02);
+}
+
+@media (max-width: 600px) {
+  .trade-table {
+    min-width: 550px;
+  }
+  .trade-table th, .trade-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}
+
+
+/* table */
+table{width:100%;border-collapse:collapse;margin-top:12px;background:transparent}
+thead th{background:#111;padding:10px;color:var(--gold);position:sticky;top:0}
+td,th{padding:10px;border-bottom:1px solid var(--border);font-size:.92rem;color:#ddd}
+
+/* monthly rekap */
+.rekap{margin-top:18px;padding:14px;background:var(--panel);border-radius:10px;border:1px solid var(--border)}
+.rekap .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.rekap .controls label{margin-right:6px}
+
+/* footer */
+footer{padding:28px 0;text-align:center;color:var(--muted);font-size:.9rem}
+
+/* fade-in */
+.fade-in{opacity:0;transform:translateY(12px);animation:fadeIn .9s ease forwards}
+.fade-in.delay-1{animation-delay:.08s}
+.fade-in.delay-2{animation-delay:.16s}
+.fade-in.delay-3{animation-delay:.24s}
+@keyframes fadeIn{to{opacity:1;transform:none}}
+
+/* responsive */
+@media(max-width:900px){
+  .chart-box{height:320px}
+  .banner-slider{max-width:100%}
+}
+@media(max-width:520px){
+  h1{font-size:1.5rem}
+  .chart-box{height:260px}
+}
+/* === CHART ANIMATION FIX + FADE (FINAL RESPONSIVE) === */
+.chart-box {
+  position: relative;
+  animation: fadeZoom 1s ease-in-out forwards;
+  opacity: 0;
+  transform: scale(0.92);
+  overflow: hidden;               /* cegah chart keluar kotak */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+@keyframes fadeZoom {
+  0% {opacity: 0; transform: scale(0.9);}
+  100% {opacity: 1; transform: scale(1);}
+}
+
+/* batasi ukuran canvas biar proporsional di semua device */
+.chart-box canvas {
+  width: 100% !important;
+  height: auto !important;
+  max-height: clamp(200px, 28vh, 320px); /* fleksibel tergantung tinggi layar */
+  display: block;
+  object-fit: contain;
+  margin: 0 auto;
+}
+
+.ad-container {
+  width: 100%;
+  text-align: center;
+  margin: 24px auto;
+}
+
+#adsterra-banner iframe {
+  width: 100% !important;
+  max-width: 728px;
+  height: 90px !important;
+  display: block;
+  margin: 0 auto;
+  border: none;
+}
+
+@media (max-width: 600px) {
+  #adsterra-banner iframe {
+    height: 60px !important;
+  }
+}
+
+
+
+/* === ANIMASI FADE-IN UNTUK BARIS TABEL (GOLDEN SMOOTH) === */
+@keyframes fadeRow {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+    background-color: rgba(212, 175, 55, 0.05);
+  }
+  60% {
+    opacity: 0.9;
+    transform: translateY(0);
+    background-color: rgba(212, 175, 55, 0.12);
+  }
+  100% {
+    opacity: 1;
+    background-color: transparent;
+  }
+}
+
+.trade-row {
+  animation: fadeRow 0.6s ease forwards;
+  transition: background-color 0.6s ease;
+}
+
+/* === RESPONSIVE BUTTON STYLE === */
+@media (max-width: 768px) {
+  button.btn-calc {
+    width: 100% !important;
+    max-width: none !important;
+    font-size: 1.05rem;
+    padding: 14px 20px;
+    border-radius: 12px;
+    margin-top: 14px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 400px) {
+  button.btn-calc {
+    font-size: 0.95rem;
+    padding: 12px 16px;
+  }
+}
+</style>
+
+<!-- FIX: Toast notifikasi -->
+<style>
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 9999;
+}
+.toast.show {
+  opacity: 1;
+}
+</style>
+
+<script>
+  // FIX: Tambahkan fungsi notifikasi ringan (global)
+  function showToast(msg) {
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.remove('show'), 2000);
+    setTimeout(() => toast.remove(), 2500);
+  }
+</script>
+</head>
+<body>
+<!-- ======== UNIVERSAL STATUS INDICATOR ======== -->
+<div id="syncStatus" style="
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #000;
+  background: #ffd65a;
+  box-shadow: 0 0 12px rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+  opacity: 0.95;
+">
+  🌐 Checking connection...
+</div>
+
+<!-- star background -->
+<div class="stars" aria-hidden="true"></div>
+
+<div class="wrapper">
+  <!-- TradingView ticker (embedded widget) -->
+  <div class="fade-in delay-1" style="max-width:1200px;margin:0 auto 6px;">
+    <div class="tradingview-widget-container">
+      <div class="tradingview-widget-container__widget"></div>
+      <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+      {"symbols":[{"proName":"FOREXCOM:XAUUSD","title":"XAUUSD"},{"proName":"FX:EURUSD","title":"EURUSD"},{"proName":"FX:GBPUSD","title":"GBPUSD"},{"proName":"FX:USDJPY","title":"USDJPY"},{"proName":"CAPITALCOM:DXY","title":"DXY"}],"colorTheme":"dark","isTransparent":false,"displayMode":"adaptive","locale":"en"}
+      </script>
+    </div>
+  </div>
+
+  <h1 class="fade-in delay-2">📈 Jurnal Trading by TradersXauusd</h1>
+
+  <div class="container fade-in delay-3">
+    <!-- Banner carousel (Exness & XM). Struktur HTML dipertahankan. -->
+    <div class="banner-slider fade-in" id="bannerSlider" aria-hidden="false">
+      <div class="banner-slide active">
+        <a href="https://clicks.pipaffiliates.com/c?m=145483&amp;c=1062011" target="_blank" rel="noopener noreferrer">
+          <img src="https://ads.pipaffiliates.com/i/145483?c=1062011" alt="XM">
+        </a>
+      </div>
+      <div class="banner-slide">
+        <a href="https://one.exnessonelink.com/intl/en/a/6ctf9tyym5" target="_blank" rel="noopener noreferrer">
+          <img src="https://d3dpet1g0ty5ed.cloudfront.net/EN_625k_traders_choose_Exness_720x90.png" alt="Exness">
+        </a>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="summary-row fade-in">
+      <div class="card"><h3>Total Pips</h3><p id="weeklyTotal">0.0</p></div>
+      <div class="card"><h3>Win Rate</h3><p id="weeklyRate">0%</p></div>
+      <div class="card"><h3>Total Trades</h3><p id="weeklyTrades">0</p></div>
+      <div class="card"><h3>Trades Profit</h3><p id="weeklyWins">0</p></div>
+      <div class="card"><h3>Trades Loss</h3><p id="weeklyLoss">0</p></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts">
+      <div class="chart-box fade-in">
+        <h3>📈 Performa Mingguan</h3>
+        <canvas id="weeklyChart"></canvas>
+      </div>
+      <div class="chart-box fade-in">
+        <h3>🏆 Win vs Loss Ratio</h3>
+        <canvas id="winLossChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Input trade form -->
+    <form id="tradeForm" class="fade-in" autocomplete="off">
+      <h3 style="color:var(--gold);margin:6px 0 12px;">✏️ Input Data Trading</h3>
+      <div class="form-row">
+        <div>
+          <label for="tanggal">Tanggal</label>
+          <input id="tanggal" type="date">
+        </div>
+        <div>
+          <label for="pair">Pair</label>
+          <input id="pair" type="text" value="XAUUSD">
+        </div>
+        <div>
+          <label for="tipe">Tipe</label>
+          <select id="tipe"><option value="buy">Buy</option><option value="sell">Sell</option></select>
+        </div>
+        <div>
+          <label for="entry">Entry</label>
+          <input id="entry" type="number" step="any" placeholder="0.0">
+        </div>
+        <div>
+          <label for="exit">Exit</label>
+          <input id="exit" type="number" step="any" placeholder="0.0">
+        </div>
+        <div>
+          <label for="pips">Pips (otomatis)</label>
+          <input id="pips" type="number" step="any" readonly placeholder="0.0">
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label for="note">Catatan</label>
+        <textarea id="note" placeholder="Alasan entry / catatan singkat"></textarea>
+      </div>
+      <div class="btn-row">
+        <button type="button" id="saveTradeBtn" class="btn-save">💾 Simpan Trade</button>
+        <button type="button" class="btn-calc" id="calcBtn">🧮 Hitung Pips</button>
+        <button type="button" class="btn-clear" id="clearBtn">🗑️ Hapus Semua</button>
+      </div>
+    </form>
+
+    <!-- Trade table -->
+<div class="table-wrapper fade-in">
+  <table class="trade-table" aria-live="polite">
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Pair</th>
+        <th>Tipe</th>
+        <th>Entry</th>
+        <th>Exit</th>
+        <th>Pips</th>
+        <th>Catatan</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tradeTable"></tbody>
+  </table>
+</div>
+
+<!-- Filter Data Berdasarkan Rentang Tanggal -->
+<div class="rekap fade-in" id="filterBox" style="margin-top:20px;text-align:center;">
+  <h3 style="color:var(--gold);margin-bottom:8px;">🔍 Filter Data Berdasarkan Tanggal</h3>
+  <label for="startDate">Dari:</label>
+  <input type="date" id="startDate" style="margin-right:10px;">
+  <label for="endDate">Sampai:</label>
+  <input type="date" id="endDate">
+  <button class="btn" id="filterBtn" style="margin-left:10px;background:var(--gold);color:#000;">Terapkan</button>
+  <button class="btn-clear" id="resetFilter" style="margin-left:5px;">Reset</button>
+</div>
+
+
+    <!-- Rekap Bulanan -->
+    <div class="rekap fade-in" id="rekapBox">
+      <h3 style="color:var(--gold);margin:0 0 10px;text-align:center">📅 Rekap Bulanan</h3>
+      <div class="controls" style="justify-content:center">
+        <label for="monthSelect">Bulan:</label>
+        <select id="monthSelect"></select>
+        <label for="yearSelect">Tahun:</label>
+        <select id="yearSelect"></select>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">
+        <div class="card"><h3>Total Pips</h3><p id="monthlyPips">0</p></div>
+        <div class="card"><h3>Win Rate</h3><p id="monthlyRate">0%</p></div>
+        <div class="card"><h3>Total Trades</h3><p id="monthlyTrades">0</p></div>
+      </div>
+    </div>
+
+   <!-- ✅ FIX FINAL (STEALTH): Slot iklan dengan fallback otomatis -->
+<div id="ad-slot" class="ad-container">
+  <!-- fallback: tampil kalau script iklan gagal load -->
+  <a id="fallback-banner"
+     href="https://tradersxauusd.my.id"
+     target="_blank"
+     rel="nofollow noopener noreferrer"
+     style="display:none;">
+    <img src="https://ads.pipaffiliates.com/i/145483?c=1062011"
+         alt="XM Trading Banner"
+         style="width:100%;max-width:728px;height:auto;border-radius:8px;box-shadow:0 0 12px rgba(0,0,0,0.4);">
+  </a>
+</div>
+
+<!-- Ad slot loader: script dimuat dan fallback dipasang jika gagal -->
+<script>
+window.addEventListener('load', () => {
+  const slot = document.getElementById('ad-slot');
+  const fallback = document.getElementById('fallback-banner');
+  if (!slot) return;
+
+  const s = document.createElement('script');
+  s.src = '//suppliesfloored.com/98c09d5670bbd4f632336e1c26536317/invoke.js';
+  s.async = true;
+
+  s.onload = () => {
+    console.log('✅ Ad slot aktif');
+    fallback.style.display = 'none';
+  };
+
+  s.onerror = () => {
+    console.log('⚠️ Ad slot gagal dimuat, fallback diaktifkan');
+    fallback.style.display = 'block';
+  };
+
+  slot.appendChild(s);
+
+  // Timeout 6 detik: tampilkan fallback kalau belum ada iframe
+  setTimeout(() => {
+    if (!slot.querySelector('iframe')) {
+      console.log('⏳ Timeout — tampilkan fallback banner');
+      fallback.style.display = 'block';
+    }
+  }, 6000);
+});
+</script>
+
+        </div>
+        </div>
+        <style>
+      #aadsstickymgypf4ec:checked + div {
+        display: none;
+      }
+    </style>
+    </div></div>
+
+      <!-- Follow Us -->
+  <div class="fade-in" style="margin-top:32px;text-align:center">
+    <h3 style="color:var(--gold);margin-bottom:14px;">🌐 Follow & Connect with TradersXauusd</h3>
+    
+    <!-- Website utama -->
+    <div style="margin-bottom:16px;">
+      <a href="https://tradersxauusd.my.id" target="_blank" rel="noopener noreferrer" 
+         style="display:inline-block;color:var(--gold);font-weight:700;text-decoration:none;
+                padding:12px 20px;border:1px solid var(--gold);border-radius:10px;
+                transition:.3s;font-size:1rem;">
+        🌍 Visit Website TradersXauusd.my.id
+      </a>
+    </div>
+
+    <!-- Sosial media -->
+    <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
+      <a href="https://t.me/marketoutlooktradersxauusd" target="_blank" rel="noopener noreferrer" 
+         style="color:var(--gold);font-weight:600;text-decoration:none;padding:10px 14px;
+                border:1px solid var(--gold);border-radius:8px;transition:.3s;">
+        💬 Telegram Channel
+      </a>
+      <a href="https://t.me/tradersxauusd" target="_blank" rel="noopener noreferrer" 
+         style="color:var(--gold);font-weight:600;text-decoration:none;padding:10px 14px;
+                border:1px solid var(--gold);border-radius:8px;transition:.3s;">
+        👤 Admin Telegram
+      </a>
+      <a href="https://tiktok.com/@tradersxauusd" target="_blank" rel="noopener noreferrer" 
+         style="color:var(--gold);font-weight:600;text-decoration:none;padding:10px 14px;
+                border:1px solid var(--gold);border-radius:8px;transition:.3s;">
+        🎵 TikTok
+      </a>
+      <a href="https://youtube.com/tradersxauusd" target="_blank" rel="noopener noreferrer"
+         style="color:var(--gold);font-weight:600;text-decoration:none;padding:10px 14px;
+                border:1px solid var(--gold);border-radius:8px;transition:.3s;">
+        ▶️ YouTube
+      </a>
+    </div>
+  </div>
+
+  </div> <!-- container -->
+</div> <!-- wrapper -->
+
+<footer class="fade-in" style="margin-top:18px">© 2025 TradersXauusd | Jurnal Trading Emas</footer>
+
+<!-- ===========================
+     SCRIPTS: logic utama (UI, pips, storage, charts)
+     Notes:
+     - Gue pertahankan urutan fungsional yang sama.
+     - Tidak mengubah struktur HTML.
+     - Menambahkan beberapa safety check & fallback.
+   =========================== -->
+<script>
+/* ========== STARFIELD ========== */
+(function makeStars(){
+  const container=document.querySelector('.stars');
+  const count=90;
+  for(let i=0;i<count;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const size = Math.random()*2+0.6;
+    s.style.width = size+'px';
+    s.style.height = size+'px';
+    s.style.left = Math.random()*100+'%';
+    s.style.top = Math.random()*100+'%';
+    s.style.opacity = (Math.random()*0.6+0.2).toString();
+    s.style.animationDelay = (Math.random()*6)+'s';
+    container.appendChild(s);
+  }
+})();
+
+/* === BANNER CAROUSEL FIX (MULTI SLIDER SUPPORT + RESPONSIVE) === */
+window.addEventListener("load", () => {
+  const slides = document.querySelectorAll(".banner-slide");
+  if (!slides || slides.length === 0) return;
+
+  let idx = 0;
+  slides.forEach((s) => s.classList.remove('active'));
+  slides[idx].classList.add("active");
+
+  setInterval(() => {
+    slides[idx].classList.remove("active");
+    idx = (idx + 1) % slides.length;
+    slides[idx].classList.add("active");
+  }, 6000); // 6 detik pergantian
+});
+
+/* ========== STORAGE & UI ========== */
+/* trades disimpan di localStorage sebagai fallback offline */
+let trades = JSON.parse(localStorage.getItem('trades')||'[]');
+
+// global: toggle lihat semua trade
+let showAllTrades = false;
+
+// simple UUID generator (v4-ish) — cukup untuk id lokal
+function generateId() {
+  return 'id-' + ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g,c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c/4).toString(16)
+  );
+}
+
+/* akses elemen penting (pastikan ada) */
+const tradeTable = document.getElementById('tradeTable');
+const weeklyTotal = document.getElementById('weeklyTotal');
+const weeklyRate = document.getElementById('weeklyRate');
+const weeklyTrades = document.getElementById('weeklyTrades');
+const weeklyWins = document.getElementById('weeklyWins');
+const weeklyLoss = document.getElementById('weeklyLoss');
+const monthlyPips = document.getElementById('monthlyPips');
+const monthlyRate = document.getElementById('monthlyRate');
+const monthlyTrades = document.getElementById('monthlyTrades');
+
+const monthSelect = document.getElementById('monthSelect');
+const yearSelect = document.getElementById('yearSelect');
+
+function populateMonthYear(){
+  const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  months.forEach((m,i)=>{const o=document.createElement('option');o.value=i;o.textContent=m;monthSelect.appendChild(o);});
+  const now=new Date();
+  const cy=now.getFullYear();
+  for(let y=cy;y>=cy-5;y--){const o=document.createElement('option');o.value=y;o.textContent=y;yearSelect.appendChild(o);}
+  monthSelect.value = now.getMonth();
+  yearSelect.value = now.getFullYear();
+}
+populateMonthYear();
+
+/* === AUTO CALCULATE PIPS (UNIVERSAL GOLD VERSION) === */
+function calcPips(pair, type, entry, exit) {
+  entry = parseFloat(entry);
+  exit = parseFloat(exit);
+  if (isNaN(entry) || isNaN(exit)) return "0.0";
+
+  // Skala pips untuk XAUUSD lebih besar dibanding pair lain
+  const multiplier = pair.toUpperCase().includes('XAU') ? 10 : 10000;
+
+  let pips = 0;
+  if (type.toLowerCase() === 'buy') {
+    pips = (exit - entry) * multiplier;
+  } else if (type.toLowerCase() === 'sell') {
+    pips = (entry - exit) * multiplier;
+  }
+
+  return pips.toFixed(1);
+}
+
+/* Pasang listener input setelah DOM tersedia.
+   Ini memastikan updateAutoPips selalu terpasang. */
+function attachPipsListeners(){
+  ['pair', 'tipe', 'entry', 'exit'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el._pipsAttached) {
+      el.addEventListener('input', updateAutoPips);
+      el.addEventListener('change', updateAutoPips);
+      el._pipsAttached = true;
+    }
+  });
+}
+
+/* Debounce sederhana supaya tidak ngelag saat ketik */
+let calcTimer;
+function updateAutoPips() {
+  clearTimeout(calcTimer);
+  calcTimer = setTimeout(() => {
+    const pair = document.getElementById('pair').value || 'XAUUSD';
+    const type = document.getElementById('tipe').value || 'buy';
+    const entry = document.getElementById('entry').value;
+    const exit = document.getElementById('exit').value;
+
+    const p = calcPips(pair, type, entry, exit);
+    const pipsEl = document.getElementById('pips');
+    if (pipsEl) pipsEl.value = p;
+  }, 180);
+}
+
+/* Manual hitung pips button */
+const btnCalc = document.getElementById('calcBtn');
+if (btnCalc) btnCalc.addEventListener('click', updateAutoPips);
+
+/* === ADD TRADE (sinkron + lokal) === */
+document.getElementById('saveTradeBtn').addEventListener('click', async function () {
+  // pastikan pips ter-update sebelum dibaca
+  updateAutoPips();
+  await new Promise(r => setTimeout(r, 220));
+
+  const t = {
+  id: generateId(),                // << tambahkan id unik
+  date: document.getElementById('tanggal').value || new Date().toISOString().slice(0,10),
+  pair: (document.getElementById('pair').value || 'XAUUSD').toUpperCase(),
+  type: document.getElementById('tipe').value || 'buy',
+  entry: document.getElementById('entry').value || '',
+  exit: document.getElementById('exit').value || '',
+  pips: parseFloat(document.getElementById('pips').value) || 0,
+  note: document.getElementById('note').value || ''
+};
+
+  trades.push(t);
+  localStorage.setItem('trades', JSON.stringify(trades));
+  renderTrades();
+  updateAll();
+
+  // Sinkronisasi ke Supabase (jika tersedia)
+  if (typeof SupabaseSync !== "undefined" && SupabaseSync.push) {
+    try {
+      await SupabaseSync.push(t);
+      showToast("☁️ Trade tersimpan & disinkron ke cloud!");
+    } catch (err) {
+      console.warn("⚠️ Gagal sync ke Supabase:", err);
+      showToast("💾 Trade disimpan lokal (offline mode)");
+    }
+  } else {
+    showToast("💾 Trade disimpan lokal");
+  }
+
+  this.blur();
+});
+
+/* Clear all */
+document.getElementById('clearBtn').addEventListener('click', ()=>{
+  if(confirm('Hapus semua data jurnal?')){
+    trades = [];
+    localStorage.removeItem('trades');
+    renderTrades();
+    updateAll();
+  }
+});
+
+/* Render trades table */
+function renderTrades(){
+  if(!tradeTable) return;
+  tradeTable.innerHTML = '';
+  if(!trades || trades.length === 0) return;
+
+  const dataToShow = trades.slice().reverse();
+
+  dataToShow.forEach((t, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${t.date}</td>
+      <td>${t.pair}</td>
+      <td>${t.type}</td>
+      <td>${t.entry}</td>
+      <td>${t.exit}</td>
+      <td>${t.pips}</td>
+      <td>${t.note || ''}</td>
+      <td><button class="deleteBtn" data-id="${t.id}" style="background:#c22223;color:#fff;border:none;border-radius:5px;padding:4px 8px;cursor:pointer;">❌</button></td>
+    `;
+    tradeTable.appendChild(tr);
+  });
+
+  // === Tombol hapus data ===
+  document.querySelectorAll(".deleteBtn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const i = e.target.getAttribute("data-index");
+      if (confirm("Hapus data ini?")) {
+        const trade = trades[i];
+        try {
+          if (typeof supabaseClient !== "undefined")
+            await supabaseClient.from("trades").delete().eq("id", trade.id);
+        } catch(err) {
+          console.warn("Gagal hapus di Supabase:", err.message);
+        }
+
+        trades.splice(i, 1);
+        localStorage.setItem("trades", JSON.stringify(trades));
+        renderTrades();
+        updateAll();
+      }
+    });
+  });
+}
+
+/* ====== Delete helper & attach handlers ====== */
+async function deleteTradeById(id) {
+  const idx = trades.findIndex(t => t.id === id);
+  if (idx === -1) return;
+
+  // coba hapus di Supabase (aman kalau gagal)
+  try {
+    if (typeof supabaseClient !== 'undefined') {
+      await supabaseClient.from('trades').delete().eq('id', id);
+    }
+  } catch (err) {
+    console.warn('Gagal hapus di Supabase:', err && err.message ? err.message : err);
+  }
+
+  // hapus lokal
+  trades.splice(idx, 1);
+  localStorage.setItem('trades', JSON.stringify(trades));
+
+  // jika ada filter aktif, re-apply filter; else render semua
+  const startEl = document.getElementById('startDate');
+  const endEl = document.getElementById('endDate');
+  if (startEl && endEl && startEl.value && endEl.value) {
+    const start = startEl.value, end = endEl.value;
+    const filtered = trades.filter(t => t.date >= start && t.date <= end);
+    renderFilteredTrades(filtered);
+    updateSummary(filtered);
+    createCharts(filtered);
+  } else {
+    renderTrades();
+    updateAll();
+  }
+}
+
+function attachDeleteHandlers() {
+  // safe reattach: clone node to remove possible listeners
+  document.querySelectorAll('.deleteBtn').forEach(btn => {
+    const cloned = btn.cloneNode(true);
+    btn.parentNode.replaceChild(cloned, btn);
+  });
+
+  document.querySelectorAll('.deleteBtn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      const id = e.currentTarget.getAttribute('data-id');
+      if (!id) return;
+      if (!confirm('Hapus data ini?')) return;
+      await deleteTradeById(id);
+    });
+  });
+}
+
+
+// === FILTER DATA BERDASARKAN TANGGAL + UPDATE CHART ===
+document.getElementById("filterBtn").addEventListener("click", () => {
+  const start = document.getElementById("startDate").value;
+  const end = document.getElementById("endDate").value;
+
+  if (!start || !end) {
+    alert("Pilih tanggal mulai dan tanggal akhir terlebih dahulu!");
+    return;
+  }
+
+  const filtered = trades.filter(t => t.date >= start && t.date <= end);
+  renderFilteredTrades(filtered);
+
+  // Update summary dan chart sesuai data filter
+  updateSummary(filtered);
+  createCharts(filtered);
+});
+
+document.getElementById("resetFilter").addEventListener("click", () => {
+  renderTrades();
+  updateAll();
+});
+
+function renderFilteredTrades(data) {
+  const table = document.getElementById("tradeTable");
+  table.innerHTML = "";
+
+  if (!data || data.length === 0) {
+    table.innerHTML = `<tr><td colspan="8" style="text-align:center;color:#777;">Tidak ada data dalam rentang tanggal</td></tr>`;
+    return;
+  }
+
+  data.forEach((t, index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${t.date}</td>
+      <td>${t.pair}</td>
+      <td>${t.type}</td>
+      <td>${t.entry}</td>
+      <td>${t.exit}</td>
+      <td>${t.pips}</td>
+      <td>${t.note || ""}</td>
+      <td><button class="deleteBtn" data-index="${index}" style="background:#c22223;color:#fff;border:none;border-radius:5px;padding:4px 8px;cursor:pointer;">❌</button></td>
+    `;
+    table.appendChild(row);
+  });
+
+  updateSummary(data);
+  createCharts(data);
+}
+
+/* tombol toggle lihat semua trade (floating mobile version) */
+document.addEventListener('DOMContentLoaded', () => {
+  attachPipsListeners(); // pasang listener pips secepat DOM siap
+
+  const toggleBtn = document.createElement('button');
+  toggleBtn.textContent = '📄 Lihat Semua Trade';
+  toggleBtn.className = 'btn-calc fade-in toggle-float';
+  toggleBtn.style.position = 'relative';
+  toggleBtn.style.display = 'block';
+  toggleBtn.style.margin = '14px auto';
+  toggleBtn.style.padding = '12px 18px';
+  toggleBtn.style.fontWeight = '700';
+  toggleBtn.style.border = '1px solid rgba(212,175,55,0.4)';
+  toggleBtn.style.borderRadius = '10px';
+  toggleBtn.style.transition = 'all 0.3s ease';
+  toggleBtn.style.background = 'linear-gradient(90deg, #1a1a1a, #111)';
+  toggleBtn.style.color = '#ffd65a';
+  toggleBtn.style.cursor = 'pointer';
+  toggleBtn.style.boxShadow = '0 0 12px rgba(212,175,55,0.2)';
+  toggleBtn.style.fontSize = '1rem';
+  toggleBtn.style.textAlign = 'center';
+  toggleBtn.style.maxWidth = '320px';
+  toggleBtn.style.minWidth = '200px';
+  toggleBtn.style.zIndex = '9999';
+
+  toggleBtn.addEventListener('mouseover', () => {
+    toggleBtn.style.background = 'linear-gradient(90deg, #2a2a2a, #1a1a1a)';
+    toggleBtn.style.boxShadow = '0 0 25px rgba(212,175,55,0.35)';
+  });
+  toggleBtn.addEventListener('mouseout', () => {
+    toggleBtn.style.background = 'linear-gradient(90deg, #1a1a1a, #111)';
+    toggleBtn.style.boxShadow = '0 0 12px rgba(212,175,55,0.2)';
+  });
+
+  toggleBtn.onclick = () => {
+    showAllTrades = !showAllTrades;
+    renderTrades();
+    toggleBtn.textContent = showAllTrades
+      ? '🔙 Tampilkan 10 Terakhir'
+      : '📄 Lihat Semua Trade';
+  };
+
+  if (tradeTable && tradeTable.parentNode) {
+    tradeTable.parentNode.insertAdjacentElement('afterend', toggleBtn);
+  }
+});
+
+/* STATUS SINKRONISASI UI */
+function setSyncStatus(msg, color = '#ccc') {
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.innerHTML = msg;
+    el.style.color = color;
+  }
+}
+
+window.addEventListener('online', () => {
+  setSyncStatus('✅ Online — Data tersinkronisasi', '#00ff7f');
+});
+
+window.addEventListener('offline', () => {
+  setSyncStatus('⚠️ Offline — Data disimpan lokal', '#ff7575');
+});
+
+setSyncStatus(
+  navigator.onLine
+    ? '✅ Online — Tersinkron ke cloud'
+    : '⚠️ Offline — Menyimpan lokal'
+);
+
+
+/* Chart instances */
+let weeklyChart=null;
+let winLossChart=null;
+
+function createCharts(data = trades) {
+  const wEl = document.getElementById('weeklyChart');
+  const dEl = document.getElementById('winLossChart');
+  if (!wEl || !dEl) return;
+
+  const ctxW = wEl.getContext('2d');
+  const ctxD = dEl.getContext('2d');
+
+  if(weeklyChart){ weeklyChart.destroy(); }
+  if(winLossChart){ winLossChart.destroy(); }
+
+  const labels = ['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const pipsData = aggregateWeeklyPips(data);
+
+  weeklyChart = new Chart(ctxW, {
+    type:'line',
+    data:{
+      labels: labels,
+      datasets:[{
+        label:'Pips Mingguan',
+        data: pipsData,
+        borderColor: '#d4af37',
+        backgroundColor: 'rgba(212,175,55,0.12)',
+        fill:true,
+        pointBackgroundColor:'#ffd65a',
+        tension:0.35,
+        pointRadius:4
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{color:'#ccc'},grid:{color:'rgba(255,255,255,0.03)'}},
+        y:{ticks:{color:'#ccc'},grid:{color:'rgba(255,255,255,0.03)'}}
+      },
+      animation:{
+        duration:1200,
+        easing:'easeOutCubic'
+      }
+    }
+  });
+
+  const win = data.filter(t=>t.pips>0).length;
+  const loss = data.filter(t=>t.pips<0).length;
+
+  winLossChart = new Chart(ctxD, {
+    type:'doughnut',
+    data:{
+      labels:['Profit','Loss'],
+      datasets:[{
+        data:[win,loss],
+        backgroundColor:['#00ff7f','#ff4757'],
+        borderWidth:0
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      cutout:'68%',
+      plugins:{
+        legend:{
+          position:'top',
+          labels:{color:'#fff', font:{size:13}}
+        }
+      },
+      animation:{
+        duration:1300,
+        easing:'easeOutBack',
+        animateRotate:true,
+        animateScale:true
+      }
+    }
+  });
+
+  document.querySelectorAll('.chart-box').forEach(chart => {
+    chart.style.opacity = 0;
+    chart.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+      chart.style.transition = 'opacity 0.9s ease, transform 0.9s ease';
+      chart.style.opacity = 1;
+      chart.style.transform = 'scale(1)';
+    }, 200);
+  });
+}
+
+/* aggregate weekly pips */
+function aggregateWeeklyPips(data = trades){
+  const arr = [0,0,0,0,0,0,0];
+  (data||[]).forEach(t=>{
+    const d = new Date(t.date);
+    if (isNaN(d)) return;
+    const weekday = d.getDay(); // 0..6
+    const idx = (weekday === 0) ? 6 : (weekday - 1);
+    arr[idx] += Number(t.pips || 0);
+  });
+  return arr.map(v=>parseFloat(v.toFixed(1)));
+}
+
+/* update summary */
+function updateSummary(data = trades) {
+  const totalPips = data.reduce((s,t)=>s+Number(t.pips||0),0);
+  const wins = data.filter(t=>t.pips>0).length;
+  const losses = data.filter(t=>t.pips<0).length;
+  const total = data.length;
+  if (weeklyTotal) weeklyTotal.textContent = totalPips.toFixed(1);
+  if (weeklyRate) weeklyRate.textContent = total ? ((wins/total)*100).toFixed(1)+'%' : '0%';
+  if (weeklyTrades) weeklyTrades.textContent = total;
+  if (weeklyWins) weeklyWins.textContent = wins;
+  if (weeklyLoss) weeklyLoss.textContent = losses;
+}
+
+/* Populate monthly rekap dropdowns */
+function populateRekapOptions(){
+  if (!monthSelect || !yearSelect) return;
+  monthSelect.addEventListener('change', updateMonthlyRekap);
+  yearSelect.addEventListener('change', updateMonthlyRekap);
+  updateMonthlyRekap();
+}
+
+/* calculate monthly stats */
+function updateMonthlyRekap(){
+  if (!monthSelect || !yearSelect) return;
+  const month = parseInt(monthSelect.value,10);
+  const year = parseInt(yearSelect.value,10);
+  const filtered = trades.filter(t=>{
+    const d = new Date(t.date);
+    return d.getMonth()===month && d.getFullYear()===year;
+  });
+  const totalPips = filtered.reduce((s,t)=>s+Number(t.pips||0),0);
+  const wins = filtered.filter(t=>t.pips>0).length;
+  const losses = filtered.filter(t=>t.pips<0).length;
+  const total = filtered.length;
+  if (monthlyPips) monthlyPips.textContent = totalPips.toFixed(1);
+  if (monthlyRate) monthlyRate.textContent = total ? ((wins/total)*100).toFixed(1)+'%' : '0%';
+  if (monthlyTrades) monthlyTrades.textContent = total;
+}
+
+/* central update */
+function updateAll(){
+  updateSummary();
+  createCharts();
+  populateRekapOptions();
+}
+
+/* initial render */
+renderTrades();
+updateAll();
+
+/* watch storage change (in case open in two tabs) */
+window.addEventListener('storage', function(e){
+  if(e.key==='trades'){
+    trades = JSON.parse(localStorage.getItem('trades')||'[]');
+    renderTrades();
+    updateAll();
+  }
+});
+
+/* ensure canvas sizing remains proportional */
+window.addEventListener('resize', function(){
+  if(weeklyChart) weeklyChart.resize();
+  if(winLossChart) winLossChart.resize();
+});
+
+/* set today's date default */
+const tanggalEl = document.getElementById('tanggal');
+if (tanggalEl) tanggalEl.value = new Date().toISOString().slice(0,10);
+
+/* create charts once DOM ready */
+window.addEventListener('load', function(){ createCharts(); updateAll(); });
+</script> <!-- akhir script utama -->
+
+<!-- REGISTER SERVICE WORKER -->
+<script>
+if ('serviceWorker' in navigator) {
+  // pastikan menggunakan absolute root path agar register tidak gagal di beberapa hosting
+  navigator.serviceWorker.register('/service-worker.js')
+    .then(() => console.log('✅ Service Worker aktif dan berjalan'))
+    .catch(err => console.log('❌ Gagal register Service Worker:', err));
+}
+</script>
+
+<!-- Popup Ads (file di root) -->
+<script src="/popup-ads.js"></script>
+<script>
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    if (typeof showPopupAd === 'function') {
+      try { showPopupAd(); } catch(e) { console.warn('popup error', e); }
+    }
+  }, 7000);
+});
+</script>
+
+<!-- STATUS SINKRONISASI (FEEDBACK KE USER) -->
+<script>
+function setSyncStatus(msg, color = '#ccc') {
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.innerHTML = msg;
+    el.style.color = color;
+  }
+}
+</script>
+
+<!-- Fetch Data dari Cloud (dipanggil setelah supabase.js dimuat) -->
+<script>
+window.addEventListener('load', async () => {
+  // bila SupabaseSync tidak tersedia, kita pakai data lokal
+  if (typeof SupabaseSync === 'undefined' || !SupabaseSync.fetchAll) {
+    console.log('⚠️ SupabaseSync tidak tersedia — gunakan localStorage');
+    setSyncStatus('⚠️ Offline — Mode lokal', '#ff7575');
+    return;
+  }
+
+  try {
+    const remoteTrades = await SupabaseSync.fetchAll();
+    if (remoteTrades && remoteTrades.length > 0) {
+      // Supabase response mungkin berisi kolom tambahan — map ke bentuk yang dipakai UI
+      trades = remoteTrades.map(r => ({
+        id: r.id || (r.id_trade || generateId()), // gunakan id dari DB kalau ada, fallback generate
+        date: r.trade_date || r.date || (r.created_at ? r.created_at.slice(0,10) : new Date().toISOString().slice(0,10)),
+        pair: (r.pair || '').toUpperCase(),
+        type: r.type || 'buy',
+        entry: r.entry,
+        exit: r.exit,
+        pips: Number(r.pips || 0),
+        note: r.note || ''
+      }));
+
+      localStorage.setItem('trades', JSON.stringify(trades));
+      renderTrades();
+      updateAll();
+
+      showToast("☁️ Data berhasil dimuat dari cloud!");
+      setSyncStatus("☁️ Data berhasil dimuat dari cloud!", "#ffd65a");
+      console.log(`☁️ ${trades.length} data berhasil diambil dari Supabase`);
+    } else {
+      console.log("ℹ️ Tidak ada data di cloud.");
+    }
+  } catch (err) {
+    console.error("⚠️ Gagal ambil data:", err);
+    // fallback ke localStorage
+    trades = JSON.parse(localStorage.getItem('trades')||'[]');
+    renderTrades();
+    updateAll();
+    setSyncStatus("⚠️ Tidak dapat mengambil data dari cloud", "#ff7575");
+    showToast("💾 Mode offline - data lokal digunakan");
+  }
+});
+</script>
+
+<!-- START: Floating Support Ribbon (Auto-Hide) -->
+<style>
+  .support-banner {
+    position: fixed;
+    bottom: 12px; /* melayang dikit dari bawah */
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(95%, 700px);
+    background: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 214, 90, 0.25);
+    border-radius: 14px;
+    color: #ffd65a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    font-family: "Poppins", system-ui, sans-serif;
+    font-size: 14px;
+    z-index: 99999;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
+    transform: translate(-50%, 150%);
+    opacity: 0;
+    transition: transform 0.8s ease, opacity 0.8s ease;
+  }
+
+  .support-banner.show {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  .support-banner.hide {
+    transform: translate(-50%, 150%);
+    opacity: 0;
+  }
+
+  .support-banner img {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: cover;
+    margin-right: 10px;
+    animation: glow 3s infinite ease-in-out;
+  }
+
+  @keyframes glow {
+    0%, 100% { box-shadow: 0 0 6px #d4af37; }
+    50% { box-shadow: 0 0 14px #ffd65a; }
+  }
+
+  .support-banner .text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex-grow: 1;
+  }
+
+  .support-banner strong {
+    font-weight: 700;
+    color: #ffd65a;
+    font-size: 15px;
+  }
+
+  .support-banner span {
+    font-size: 13px;
+    color: #eee;
+    opacity: 0.85;
+  }
+
+  .support-banner .btn {
+    background: linear-gradient(90deg, #ffd65a, #d4af37);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.25s ease;
+  }
+
+  .support-banner .btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 10px #ffd65a;
+  }
+
+  @media (max-width: 600px) {
+    .support-banner {
+      flex-direction: column;
+      text-align: center;
+      width: 92%;
+      gap: 8px;
+      padding: 12px;
+      font-size: 13px;
+    }
+    .support-banner img {
+      margin: 0 auto 4px;
+    }
+    .support-banner .btn {
+      width: 100%;
+      max-width: 260px;
+      margin: 0 auto;
+    }
+  }
+</style>
+
+<div class="support-banner" id="supportBanner">
+  <img src="/icon-192.png" alt="Support TradersXauusd">
+  <div class="text">
+    <strong>Dukung Pengembang</strong>
+    <span>Bantu kembangkan fitur & server TradersXauusd 💛</span>
+  </div>
+  <a href="http://lynk.id/tradersxauusd/s/gg485q0k32gp?utm_source=site&utm_medium=banner&utm_campaign=support_tradersxauusd"
+     target="_blank" rel="noopener noreferrer nofollow">
+    <button class="btn">Dukung Sekarang</button>
+  </a>
+</div>
+
+<script>
+  window.addEventListener("load", () => {
+    const banner = document.getElementById("supportBanner");
+
+    // Muncul setelah 1.5 detik
+    setTimeout(() => {
+      banner.classList.add("show");
+    }, 1500);
+
+    // Menghilang otomatis setelah 15 detik
+    setTimeout(() => {
+      banner.classList.remove("show");
+      banner.classList.add("hide");
+    }, 16500);
+  });
+</script>
+<!-- END: Floating Support Ribbon -->
+
+<!-- ======== ONLINE STATUS INDICATOR ======== -->
+<div id="netStatus" style="
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #000;
+  background: #ffd65a;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+">
+  🌐 Checking...
+</div>
+
+<script>
+  function updateNetworkStatus() {
+    const el = document.getElementById("netStatus");
+    if (navigator.onLine) {
+      el.textContent = "☁️ Online";
+      el.style.background = "#00ff7f";
+    } else {
+      el.textContent = "💾 Offline";
+      el.style.background = "#ff7575";
+    }
+  }
+
+  window.addEventListener("online", updateNetworkStatus);
+  window.addEventListener("offline", updateNetworkStatus);
+  updateNetworkStatus();
+</script>
+
+<!-- Auto-Redirect Check + Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/supabase.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    const { data, error } = await supabaseClient.auth.getUser();
+
+    if (error) {
+      console.warn("Auth error:", error.message);
+      return (window.location.href = "login.html");
+    }
+
+    // User belum login
+    if (!data?.user) {
+      console.log("Belum login");
+      return (window.location.href = "login.html");
+    }
+
+    console.log("✅ Login sebagai:", data.user.email);
+  } catch (err) {
+    console.error("Gagal ambil data user:", err);
+    window.location.href = "login.html";
+  }
+});
+
+</script>
+</body>
+</html>
+
