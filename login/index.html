@@ -147,18 +147,15 @@
 
     <footer>© 2025 TradersXauusd | Aman & terenkripsi</footer>
 
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js"></script>
 
-    <!-- Login Logic -->
     <script>
-      const emailInput = document.getElementById("email");
-      const passwordInput = document.getElementById("password");
+      const email = document.getElementById("email");
+      const password = document.getElementById("password");
       const loginBtn = document.getElementById("loginBtn");
       const switchMode = document.getElementById("switchMode");
       const message = document.getElementById("message");
-
       let mode = "login";
 
       switchMode.addEventListener("click", () => {
@@ -172,100 +169,94 @@
       });
 
       loginBtn.addEventListener("click", async () => {
-        const email = emailInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        if (!email || !password) {
+        const userEmail = email.value.trim();
+        const userPassword = password.value.trim();
+        if (!userEmail || !userPassword) {
+          message.textContent = "⚠️ Lengkapi email dan password!";
           message.style.color = "#ff7575";
-          message.textContent = "Isi email dan password dulu!";
           return;
         }
 
-        if (mode === "login") {
-          const { data, error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password,
-          });
-          if (error) {
-            message.style.color = "#ff7575";
-            message.textContent = "Login gagal: " + error.message;
+        try {
+          let response;
+          if (mode === "login") {
+            response = await supabaseClient.auth.signInWithPassword({
+              email: userEmail,
+              password: userPassword,
+            });
           } else {
-            message.style.color = "#00ff7f";
-            message.textContent = "Login sukses, mengarahkan...";
-            localStorage.setItem("sb-tradersxauusd-session", JSON.stringify(data.session));
-            setTimeout(() => (window.location.href = "index.html"), 800);
+            response = await supabaseClient.auth.signUp({
+              email: userEmail,
+              password: userPassword,
+            });
           }
-        } else {
-          const { data, error } = await supabaseClient.auth.signUp({ email, password });
-          if (error) {
+
+          if (response.error) {
+            message.textContent = "❌ " + response.error.message;
             message.style.color = "#ff7575";
-            message.textContent = "Gagal daftar: " + error.message;
           } else {
+            message.textContent =
+              mode === "login"
+                ? "✅ Login sukses, mengarahkan..."
+                : "✅ Akun dibuat! Silakan login.";
             message.style.color = "#00ff7f";
-            message.textContent = "Akun berhasil dibuat! Silakan login.";
-            mode = "login";
-            loginBtn.textContent = "Login";
-            switchMode.textContent = "Belum punya akun? Daftar di sini";
+
+            if (mode === "login") {
+              setTimeout(() => (window.location.href = "/"), 1000);
+            } else {
+              mode = "login";
+              loginBtn.textContent = "Login";
+              switchMode.textContent = "Belum punya akun? Daftar di sini";
+            }
           }
+        } catch (err) {
+          message.textContent = "⚠️ Terjadi kesalahan koneksi.";
+          console.error(err);
         }
       });
 
+      // Auto redirect jika sudah login
       document.addEventListener("DOMContentLoaded", async () => {
         const { data } = await supabaseClient.auth.getUser();
-        if (data?.user) window.location.href = "index.html";
+        if (data?.user) window.location.href = "/";
       });
-    </script>
 
-    <!-- Particle Animation -->
-    <script>
-      const canvas = document.getElementById("particles");
-      const ctx = canvas.getContext("2d");
-      let particles = [];
-
+      // Animasi Partikel
+      const c = document.getElementById("particles");
+      const ctx = c.getContext("2d");
       function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
       }
-
       window.addEventListener("resize", resize);
       resize();
-
-      for (let i = 0; i < 60; i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          r: Math.random() * 2 + 1,
-          d: Math.random() * 1,
-        });
-      }
-
+      const particles = Array.from({ length: 60 }).map(() => ({
+        x: Math.random() * c.width,
+        y: Math.random() * c.height,
+        r: Math.random() * 2 + 1,
+        d: Math.random(),
+      }));
+      let angle = 0;
       function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, c.width, c.height);
         ctx.fillStyle = "#ffd65a";
         ctx.beginPath();
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
+        for (let p of particles) {
           ctx.moveTo(p.x, p.y);
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2, true);
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         }
         ctx.fill();
         update();
       }
-
-      let angle = 0;
       function update() {
-        angle += 0.001;
-        for (let i = 0; i < particles.length; i++) {
-          const p = particles[i];
-          p.y += Math.cos(angle + p.d) + 0.5;
+        angle += 0.002;
+        for (let p of particles) {
+          p.y += Math.cos(angle + p.d) + 0.4;
           p.x += Math.sin(angle) * 0.3;
-
-          if (p.y > canvas.height) {
-            particles[i] = { x: Math.random() * canvas.width, y: 0, r: p.r, d: p.d };
-          }
+          if (p.y > c.height)
+            Object.assign(p, { x: Math.random() * c.width, y: 0 });
         }
       }
-
       setInterval(draw, 33);
     </script>
   </body>
