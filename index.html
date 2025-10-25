@@ -1372,58 +1372,50 @@ window.addEventListener('load', async () => {
 <script src="/login/supabase.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
+async function initApp() {
   document.body.style.opacity = "0";
   document.body.style.transition = "opacity 0.3s ease";
 
   try {
-    // Tunggu sampai Supabase siap
-    await new Promise(resolve => {
-      const waitForSupabase = setInterval(() => {
-        if (window.supabaseClient?.auth) {
-          clearInterval(waitForSupabase);
-          resolve();
-        }
-      }, 100);
-    });
+    // Tunggu sampai Supabase siap maksimal 2 detik
+    for (let i = 0; i < 20; i++) {
+      if (window.supabaseClient?.auth) break;
+      await new Promise(r => setTimeout(r, 100));
+    }
 
-    // Delay tambahan supaya session sempat di-load
-    await new Promise(r => setTimeout(r, 300));
-
-    // Cek session aktif
-    const { data: sessionData, error } = await supabaseClient.auth.getSession();
-
-    if (error) throw error;
-
-    const session = sessionData?.session;
-    if (!session || !session.user) {
+    // Ambil session aktif
+    const { data, error } = await supabaseClient.auth.getSession();
+    if (error || !data?.session?.user) {
       console.warn("⚠️ Tidak ada session, arahkan ke login...");
       localStorage.removeItem("sb-tradersxauusd-session");
-      window.location.replace("/login/");
+      setTimeout(() => (window.location.href = "/login/"), 100);
       return;
     }
 
-    const user = session.user;
+    // Jika user valid
+    const user = data.session.user;
     console.log("✅ Login aktif:", user.email);
 
-    // Update indikator status
     const syncStatus = document.getElementById("syncStatus");
     if (syncStatus) {
       syncStatus.textContent = `☁️ Online — ${user.email}`;
       syncStatus.style.background = "#00ff7f";
     }
 
-    document.body.style.opacity = "1";
+    document.body.style.opacity = "1"; // tampilkan halaman setelah valid
   } catch (err) {
     console.error("❌ Auth error:", err);
     localStorage.removeItem("sb-tradersxauusd-session");
-    window.location.replace("/login/");
+    setTimeout(() => (window.location.href = "/login/"), 200);
   }
-});
+}
+
+window.addEventListener("load", initApp);
 </script>
 
 </body>
 </html>
+
 
 
 
