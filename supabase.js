@@ -1,28 +1,27 @@
 /* ==========================================================
-   Supabase Sync Module — TradersXAUUSD (Final Netlify Build)
+   Supabase Sync Module — TradersXAUUSD (Final Stable Build)
    ========================================================== */
 
 if (!window._supabaseInitialized) {
   window._supabaseInitialized = true;
 
-  // ====== KONFIGURASI LANGSUNG ======
+  // ====== KONFIGURASI SUPABASE ======
   const SUPABASE_URL = "https://zejfddhbvqzuzjnxaqcy.supabase.co";
   const SUPABASE_KEY =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplamZkZGhidnF6dXpqbnhhcWN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5MzEwNzIsImV4cCI6MjA3NjUwNzA3Mn0.YMYUSHarC5aVLVuXTvi3QmgJ7ZlUOVGHYoueixSffUQ";
 
-  // ====== INIT SUPABASE CLIENT ======
-window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storage: localStorage,
-    storageKey: "sb-tradersxauusd-session", // penting biar token gak bentrok
-  },
-});
+  // ====== INISIALISASI CLIENT ======
+  window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      storage: localStorage,
+      storageKey: "sb-tradersxauusd-session",
+    },
+  });
 
-
-  // ====== AUTH MANAGEMENT ======
+  // ====== CEK STATUS LOGIN ======
   async function getUser() {
     try {
       const { data } = await supabaseClient.auth.getUser();
@@ -33,27 +32,19 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     }
   }
 
-  async function loginWithGoogle() {
+  // ====== LOGOUT USER ======
+  async function logout() {
     try {
-      const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: "https://jurnaltradersxauusd.my.id/",
-        },
-      });
-      if (error) console.error("Google Login error:", error.message);
+      await supabaseClient.auth.signOut();
+      localStorage.removeItem("trades");
+      showToast("Anda telah logout", "👋");
+      window.location.href = "/login/";
     } catch (err) {
-      console.error("Login error:", err.message);
+      console.error("Logout gagal:", err.message);
     }
   }
 
-  async function logout() {
-    await supabaseClient.auth.signOut();
-    localStorage.removeItem("trades");
-    location.href = "login.html";
-  }
-
-  // ====== MINI TOAST ======
+  // ====== MINI TOAST NOTIFIKASI ======
   function showToast(message, emoji = "💡") {
     const toast = document.createElement("div");
     toast.textContent = `${emoji} ${message}`;
@@ -83,7 +74,7 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     }, 3000);
   }
 
-  // ====== STATUS SYNC FLOAT ======
+  // ====== STATUS SINKRON FLOAT ======
   function setSyncStatus(message, color = "#ffd65a") {
     let el = document.getElementById("syncStatus");
     if (!el) {
@@ -114,7 +105,7 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     }, 10000);
   }
 
-  // ====== SYNC CRUD ======
+  // ====== CRUD UNTUK TABEL TRADES ======
   const SupabaseSync = {
     async push(trade) {
       try {
@@ -186,7 +177,7 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     }
   }
 
-  // ====== PAGE INIT ======
+  // ====== PAGE LOAD ======
   document.addEventListener("DOMContentLoaded", async () => {
     const user = await getUser();
     if (user) {
@@ -195,10 +186,5 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     } else {
       setSyncStatus("💾 Offline — belum login", "#ff7575");
     }
-
-    const googleBtn = document.getElementById("googleBtn");
-    if (googleBtn) googleBtn.onclick = loginWithGoogle;
   });
 }
-
-
