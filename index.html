@@ -1412,9 +1412,15 @@ async function initApp() {
 
 window.addEventListener("load", initApp);
 </script>
+<script>
+if (window.location.pathname.endsWith("/index.html")) {
+  history.replaceState(null, "", "/");
+}
+</script>
 
 </body>
 </html>
+
 
 
 
