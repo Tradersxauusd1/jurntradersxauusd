@@ -17,32 +17,33 @@ const ASSETS_TO_CACHE = [
   "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
 ];
 
-// Install cache
+// ======= INSTALL CACHE =======
 self.addEventListener("install", (event) => {
-  console.log("⚙️ SW: Installing...");
+  console.log("⚙️ SW: Installing & caching assets...");
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(ASSETS_TO_CACHE))
-      .then(() => self.skipWaiting())
+      .then(() => self.skipWaiting()) // langsung aktif
   );
 });
 
-// Activate cache
+// ======= ACTIVATE (CLEAR OLD CACHE) =======
 self.addEventListener("activate", (event) => {
-  console.log("🔄 SW: Activating...");
+  console.log("♻️ SW: Activating & cleaning old cache...");
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
             console.log("🧹 SW: Menghapus cache lama:", key);
             return caches.delete(key);
           }
         })
-      )
-    )
+      );
+      await self.clients.claim(); // ambil kontrol penuh tab aktif
+    })()
   );
-  self.clients.claim();
 });
 
 // Fetch handler
@@ -90,3 +91,4 @@ self.addEventListener("fetch", (event) => {
     });
   }
 });
+
