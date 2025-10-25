@@ -60,7 +60,7 @@ if (!window._supabaseInitialized) {
 
       if (error) throw error;
       showToast("Login sukses, mengarahkan...", "✅");
-      setTimeout(() => (window.location.href = "/index.html"), 1000);
+      setTimeout(() => window.location.replace("https://jurnaltradersxauusd.my.id/"), 1000);
     } catch (err) {
       console.error("Login error:", err.message);
       showToast("Terjadi kesalahan koneksi.", "⚠️");
@@ -85,3 +85,4 @@ if (!window._supabaseInitialized) {
 
   document.addEventListener("DOMContentLoaded", checkSession);
 }
+
