@@ -1367,42 +1367,55 @@ window.addEventListener('load', async () => {
   updateNetworkStatus();
 </script>
 
-<!-- Auto-Redirect Check + Supabase -->
+<!-- Supabase Auth Checker -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="/login/supabase.js"></script>
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
+  // Tampilkan loading sementara
+  document.body.style.opacity = "0";
+  document.body.style.transition = "opacity 0.4s ease";
+
   try {
+    // Delay kecil buat Supabase siap
     await new Promise((r) => setTimeout(r, 400));
+
     const { data, error } = await supabaseClient.auth.getSession();
 
-// Cek validasi session Supabase
-if (error || !data || !data.session || !data.session.user) {
-  console.warn("⚠️ Session tidak ditemukan, arahkan ke login...");
-  localStorage.removeItem("sb-tradersxauusd-session");
-  window.location.replace("https://jurnaltradersxauusd.my.id/login/");
-  return;
-}
+    // Jika tidak ada session, arahkan ke login
+    if (error || !data || !data.session || !data.session.user) {
+      console.warn("⚠️ Tidak ada session aktif, redirect ke login...");
+      localStorage.removeItem("sb-tradersxauusd-session");
+      window.location.replace("https://jurnaltradersxauusd.my.id/login/");
+      return;
+    }
 
+    // ✅ Kalau berhasil login
     const user = data.session.user;
     console.log("✅ Login aktif:", user.email);
 
     const syncStatus = document.getElementById("syncStatus");
-    if (syncStatus)
+    if (syncStatus) {
       syncStatus.textContent = `☁️ Online — ${user.email}`;
+      syncStatus.style.background = "#00ff7f";
+    }
+
+    // Fade in halaman setelah session valid
+    setTimeout(() => {
+      document.body.style.opacity = "1";
+    }, 200);
 
   } catch (err) {
-  console.error("❌ Auth gagal:", err.message);
-  setTimeout(() => {
+    console.error("❌ Auth gagal:", err);
     window.location.replace("https://jurnaltradersxauusd.my.id/login/");
-  }, 500);
-}
+  }
 });
 </script>
   
 </body>
 </html>
+
 
 
 
