@@ -1373,34 +1373,37 @@ window.addEventListener('load', async () => {
 
 <script>
 document.addEventListener("DOMContentLoaded", async () => {
-  // beri delay kecil untuk memastikan Supabase sempat load session
-  await new Promise(r => setTimeout(r, 400));
-
   try {
-    const { data, error } = await supabaseClient.auth.getUser();
+    await new Promise((r) => setTimeout(r, 400));
+    const { data, error } = await supabaseClient.auth.getSession();
 
-    if (error) {
-      console.warn("Auth error:", error.message);
-      localStorage.removeItem("sb-tradersxauusd-session");
-      return (window.location.href = "/login/");
-    }
+// Cek validasi session Supabase
+if (error || !data || !data.session || !data.session.user) {
+  console.warn("⚠️ Session tidak ditemukan, arahkan ke login...");
+  localStorage.removeItem("sb-tradersxauusd-session");
+  window.location.replace("https://jurnaltradersxauusd.my.id/login/");
+  return;
+}
 
-    if (!data?.user) {
-      console.log("Belum login");
-      return (window.location.href = "/login/");
-    }
+    const user = data.session.user;
+    console.log("✅ Login aktif:", user.email);
 
-    console.log("✅ Login aktif:", data.user.email);
-    document.getElementById("netStatus").textContent = `☁️ ${data.user.email}`;
+    const syncStatus = document.getElementById("syncStatus");
+    if (syncStatus)
+      syncStatus.textContent = `☁️ Online — ${user.email}`;
+
   } catch (err) {
-    console.error("Auth gagal:", err);
-    window.location.href = "/login/";
-  }
+  console.error("❌ Auth gagal:", err.message);
+  setTimeout(() => {
+    window.location.replace("https://jurnaltradersxauusd.my.id/login/");
+  }, 500);
+}
 });
 </script>
-
+  
 </body>
 </html>
+
 
 
 
