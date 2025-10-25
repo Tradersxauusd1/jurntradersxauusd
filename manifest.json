@@ -1,13 +1,13 @@
 {
   "name": "Jurnal TradersXauusd",
-  "short_name": "Jurnal Trading",
-  "description": "Catatan dan rekap trading harian untuk trader profesional dan pemula.",
-  "start_url": "/index.html",
+  "short_name": "TradersXAUUSD",
+  "description": "Aplikasi jurnal trading emas profesional dengan mode offline & Supabase login.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#121212",
-  "theme_color": "#d4af37",
+  "background_color": "#0b0b0b",
+  "theme_color": "#ffd65a",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -21,4 +21,3 @@
     }
   ]
 }
-
