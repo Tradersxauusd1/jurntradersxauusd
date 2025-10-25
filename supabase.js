@@ -38,7 +38,7 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: "https://jurnaltradersxauusd.my.id/login.html",
+          redirectTo: "https://jurnaltradersxauusd.my.id/login/",
         },
       });
       if (error) console.error("Google Login error:", error.message);
@@ -200,3 +200,4 @@ window.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY,
     if (googleBtn) googleBtn.onclick = loginWithGoogle;
   });
 }
+
