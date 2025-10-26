@@ -1372,46 +1372,51 @@ window.addEventListener('load', async () => {
 <script src="/login/supabase.js"></script>
 
 <script>
-async function initApp() {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Sembunyikan tampilan dulu
   document.body.style.opacity = "0";
   document.body.style.transition = "opacity 0.3s ease";
 
+  // Tunggu sampai Supabase siap digunakan
+  await new Promise((resolve) => {
+    const checkReady = setInterval(() => {
+      if (window.supabaseClient?.auth) {
+        clearInterval(checkReady);
+        resolve();
+      }
+    }, 100);
+  });
+
   try {
-    // Tunggu sampai Supabase siap maksimal 2 detik
-    for (let i = 0; i < 20; i++) {
-      if (window.supabaseClient?.auth) break;
-      await new Promise(r => setTimeout(r, 100));
-    }
-
-    // Ambil session aktif
+    // Ambil session dari storage Supabase
     const { data, error } = await supabaseClient.auth.getSession();
-    if (error || !data?.session?.user) {
-      console.warn("⚠️ Tidak ada session, arahkan ke login...");
-      localStorage.removeItem("sb-tradersxauusd-session");
-      setTimeout(() => (window.location.href = "/login/"), 100);
-      return;
-    }
 
-    // Jika user valid
-    const user = data.session.user;
-    console.log("✅ Login aktif:", user.email);
+    if (error) throw error;
 
+    const session = data?.session;
     const syncStatus = document.getElementById("syncStatus");
-    if (syncStatus) {
-      syncStatus.textContent = `☁️ Online — ${user.email}`;
-      syncStatus.style.background = "#00ff7f";
-    }
 
-    document.body.style.opacity = "1"; // tampilkan halaman setelah valid
+    if (session?.user) {
+      // ✅ User login aktif
+      const user = session.user;
+      console.log("✅ Login aktif:", user.email);
+      if (syncStatus) {
+        syncStatus.textContent = `☁️ Online — ${user.email}`;
+        syncStatus.style.background = "#00ff7f";
+      }
+      document.body.style.opacity = "1";
+    } else {
+      // 🚪 Tidak ada session → arahkan ke login
+      console.warn("⚠️ Tidak ada session, arahkan ke login...");
+      window.location.href = "/login/";
+    }
   } catch (err) {
     console.error("❌ Auth error:", err);
-    localStorage.removeItem("sb-tradersxauusd-session");
-    setTimeout(() => (window.location.href = "/login/"), 200);
+    window.location.href = "/login/";
   }
-}
-
-window.addEventListener("load", initApp);
+});
 </script>
+
 <script>
 if (window.location.pathname.endsWith("/index.html")) {
   history.replaceState(null, "", "/");
@@ -1420,12 +1425,3 @@ if (window.location.pathname.endsWith("/index.html")) {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
