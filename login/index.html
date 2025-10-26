@@ -1,273 +1,288 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - Jurnal TradersXauusd</title>
-  <link rel="icon" href="icon-192.png" type="image/png" />
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      height: 100%;
-      background: radial-gradient(circle at top, #000, #0b0b0b);
-      font-family: "Poppins", sans-serif;
-      color: #ffd65a;
-      transition: opacity 0.5s ease;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Jurnal TradersXauusd</title>
+    <link rel="icon" href="icon-192.png" type="image/png" />
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        height: 100%;
+        background: radial-gradient(circle at top, #000, #0b0b0b);
+        font-family: "Poppins", sans-serif;
+        color: #ffd65a;
+        transition: opacity 0.5s ease;
+      }
 
-    canvas#particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-    }
+      canvas#particles {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
 
-    .card {
-      position: relative;
-      z-index: 1;
-      background: rgba(25, 25, 25, 0.9);
-      border: 1px solid rgba(255, 214, 90, 0.2);
-      border-radius: 16px;
-      padding: 35px;
-      width: 340px;
-      text-align: center;
-      margin: 100px auto;
-      box-shadow: 0 0 20px rgba(255, 214, 90, 0.15);
-    }
+      .card {
+        position: relative;
+        z-index: 1;
+        background: rgba(25, 25, 25, 0.9);
+        border: 1px solid rgba(255, 214, 90, 0.2);
+        border-radius: 16px;
+        padding: 35px;
+        width: 340px;
+        text-align: center;
+        margin: 100px auto;
+        box-shadow: 0 0 20px rgba(255, 214, 90, 0.15);
+      }
 
-    .card h2 { color: #ffd65a; font-weight: 700; margin-bottom: 10px; }
-    .card p { color: #aaa; font-size: 14px; margin-bottom: 25px; }
+      .card h2 {
+        color: #ffd65a;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
 
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 14px;
-      background: #1a1a1a;
-      color: #ffd65a;
-    }
+      .card p {
+        color: #aaa;
+        font-size: 14px;
+        margin-bottom: 25px;
+      }
 
-    button {
-      width: 100%;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      background: #ffd65a;
-      color: #000;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        background: #1a1a1a;
+        color: #ffd65a;
+      }
 
-    button:hover { background: #ffdb70; }
+      button {
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 8px;
+        background: #ffd65a;
+        color: #000;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
 
-    .switch { margin-top: 12px; color: #aaa; font-size: 14px; cursor: pointer; }
-    #message { margin-top: 12px; font-weight: 600; }
+      button:hover {
+        background: #ffdb70;
+      }
 
-    .follow {
-      margin-top: 25px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
+      .switch {
+        margin-top: 12px;
+        color: #aaa;
+        font-size: 14px;
+        cursor: pointer;
+      }
 
-    .follow a {
-      display: inline-block;
-      text-decoration: none;
-      color: #ffd65a;
-      border: 1px solid rgba(255, 214, 90, 0.4);
-      border-radius: 8px;
-      padding: 8px 14px;
-      transition: all 0.3s ease;
-    }
+      #message {
+        margin-top: 12px;
+        font-weight: 600;
+      }
 
-    .follow a:hover { background: rgba(255, 214, 90, 0.1); }
+      .follow {
+        margin-top: 25px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+      }
 
-    footer {
-      position: fixed;
-      bottom: 10px;
-      width: 100%;
-      text-align: center;
-      font-size: 12px;
-      color: #777;
-    }
-  </style>
-</head>
+      .follow a {
+        display: inline-block;
+        text-decoration: none;
+        color: #ffd65a;
+        border: 1px solid rgba(255, 214, 90, 0.4);
+        border-radius: 8px;
+        padding: 8px 14px;
+        transition: all 0.3s ease;
+      }
 
-<body>
-  <canvas id="particles"></canvas>
+      .follow a:hover {
+        background: rgba(255, 214, 90, 0.1);
+      }
 
-  <div class="card" id="loginCard">
-    <h2>LOGIN DULU UNTUK AKSES JURNAL</h2>
-    <p>Masuk ke jurnal trading kamu</p>
+      footer {
+        position: fixed;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+    </style>
+  </head>
 
-    <input type="email" id="email" placeholder="Email" required />
-    <input type="password" id="password" placeholder="Password" required />
-    <button id="loginBtn">Login</button>
-    <div class="switch" id="switchMode">Belum punya akun? Daftar di sini</div>
-    <p id="message"></p>
+  <body>
+    <canvas id="particles"></canvas>
 
-    <div class="follow">
-      <h4>🌐 Follow & Connect</h4>
-      <a href="https://tradersxauusd.my.id" target="_blank">🌍 Visit Website TradersXauusd.my.id</a>
-      <a href="https://t.me/Tradersxauusd" target="_blank">💬 Telegram</a>
-      <a href="https://youtube.com/@Tradersxauusd" target="_blank">▶️ YouTube</a>
-      <a href="https://www.tiktok.com/@Tradersxauusd" target="_blank">🎵 TikTok</a>
+    <div class="card" id="loginCard">
+      <h2>LOGIN DULU UNTUK AKSES JURNAL</h2>
+      <p>Masuk ke jurnal trading kamu</p>
+
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="loginBtn">Login</button>
+      <div class="switch" id="switchMode">Belum punya akun? Daftar di sini</div>
+      <p id="message"></p>
+
+      <div class="follow">
+        <h4>🌐 Follow & Connect</h4>
+        <a href="https://tradersxauusd.my.id" target="_blank">🌍 Visit Website TradersXauusd.my.id</a>
+        <a href="https://t.me/Tradersxauusd" target="_blank">💬 Telegram</a>
+        <a href="https://youtube.com/@Tradersxauusd" target="_blank">▶️ YouTube</a>
+        <a href="https://www.tiktok.com/@Tradersxauusd" target="_blank">🎵 TikTok</a>
+      </div>
     </div>
-  </div>
 
-  <footer>© 2025 TradersXauusd | Aman & terenkripsi</footer>
+    <footer>© 2025 TradersXauusd | Aman & terenkripsi</footer>
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./supabase.js"></script>
+   <!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase.js"></script>
 
-  <script>
-  document.addEventListener("DOMContentLoaded", async () => {
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const loginBtn = document.getElementById("loginBtn");
-    const switchMode = document.getElementById("switchMode");
-    const message = document.getElementById("message");
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+  const email = document.getElementById("email");
+  const password = document.getElementById("password");
+  const loginBtn = document.getElementById("loginBtn");
+  const switchMode = document.getElementById("switchMode");
+  const message = document.getElementById("message");
 
-    let mode = "login";
+  let mode = "login";
 
-    switchMode.addEventListener("click", () => {
-      mode = mode === "login" ? "register" : "login";
-      loginBtn.textContent = mode === "login" ? "Login" : "Daftar";
-      switchMode.textContent =
-        mode === "login"
-          ? "Belum punya akun? Daftar di sini"
-          : "Sudah punya akun? Login di sini";
-      message.textContent = "";
-    });
+  switchMode.addEventListener("click", () => {
+    mode = mode === "login" ? "register" : "login";
+    loginBtn.textContent = mode === "login" ? "Login" : "Daftar";
+    switchMode.textContent =
+      mode === "login"
+        ? "Belum punya akun? Daftar di sini"
+        : "Sudah punya akun? Login di sini";
+    message.textContent = "";
+  });
 
-    async function waitForSession(timeout = 4000) {
-      const start = Date.now();
-      while (Date.now() - start < timeout) {
-        const { data } = await supabaseClient.auth.getSession();
-        if (data?.session?.user) return true;
-        await new Promise(r => setTimeout(r, 200));
-      }
-      return false;
+  async function waitForSession(timeout = 4000) {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const { data } = await supabaseClient.auth.getSession();
+      if (data?.session?.user) return true;
+      await new Promise(r => setTimeout(r, 200));
+    }
+    return false;
+  }
+
+  loginBtn.addEventListener("click", async () => {
+    const userEmail = email.value.trim();
+    const userPassword = password.value.trim();
+
+    if (!userEmail || !userPassword) {
+      message.textContent = "⚠️ Lengkapi email dan password!";
+      message.style.color = "#ff7575";
+      return;
     }
 
-    loginBtn.addEventListener("click", async () => {
-      const userEmail = email.value.trim();
-      const userPassword = password.value.trim();
-
-      if (!userEmail || !userPassword) {
-        message.textContent = "⚠️ Lengkapi email dan password!";
-        message.style.color = "#ff7575";
-        return;
-      }
-
-      try {
-        let response;
-        if (mode === "login") {
-          response = await supabaseClient.auth.signInWithPassword({
-            email: userEmail,
-            password: userPassword,
-          });
-        } else {
-          response = await supabaseClient.auth.signUp({
-            email: userEmail,
-            password: userPassword,
-          });
-
-          // 🔔 kirim otomatis ke Edge Function Supabase (welcome email)
-          try {
-            await fetch("https://zejfddhbvqzuzjnxaqcy.functions.supabase.co/send-welcome-email", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ record: { email: userEmail } })
-            });
-            console.log("✅ Email welcome dikirim otomatis");
-          } catch (e) {
-            console.warn("⚠️ Gagal kirim email welcome:", e.message);
-          }
-        }
-
-        if (response.error) {
-          message.textContent = "❌ " + response.error.message;
-          message.style.color = "#ff7575";
-        } else {
-          message.textContent =
-            mode === "login"
-              ? "✅ Login sukses! Menyimpan session..."
-              : "✅ Akun dibuat! Cek email kamu untuk konfirmasi.";
-          message.style.color = "#00ff7f";
-
-          if (mode === "login") {
-            const ok = await waitForSession();
-            if (ok) {
-              document.body.style.opacity = "0";
-              setTimeout(() => (window.location.href = "/"), 500);
-            } else {
-              setTimeout(() => (window.location.href = "/"), 1500);
-            }
-          }
-        }
-      } catch (err) {
-        message.textContent = "⚠️ Terjadi kesalahan koneksi.";
-        message.style.color = "#ff7575";
-        console.error(err);
-      }
-    });
-
-    // Auto redirect kalau sudah login
     try {
-      const { data } = await supabaseClient.auth.getSession();
-      if (data?.session?.user) {
-        document.body.style.opacity = "0";
-        setTimeout(() => window.location.replace("/"), 400);
+      let response;
+      if (mode === "login") {
+        response = await supabaseClient.auth.signInWithPassword({
+          email: userEmail,
+          password: userPassword,
+        });
+      } else {
+        response = await supabaseClient.auth.signUp({
+          email: userEmail,
+          password: userPassword,
+          options: { emailRedirectTo: "https://jurnaltradersxauusd.my.id/login" },
+        });
+      }
+
+      if (response.error) {
+        message.textContent = "❌ " + response.error.message;
+        message.style.color = "#ff7575";
+      } else {
+        message.textContent =
+          mode === "login"
+            ? "✅ Login sukses! Menyimpan session..."
+            : "📩 Akun berhasil dibuat! Cek email kamu untuk konfirmasi sebelum login.";
+        message.style.color = "#00ff7f";
+
+        if (mode === "login") {
+          const ok = await waitForSession();
+          if (ok) {
+            document.body.style.opacity = "0";
+            setTimeout(() => (window.location.href = "/"), 500);
+          } else {
+            setTimeout(() => (window.location.href = "/"), 2000);
+          }
+        }
       }
     } catch (err) {
-      console.error("Auto login check error:", err);
+      message.textContent = "⚠️ Terjadi kesalahan koneksi.";
+      message.style.color = "#ff7575";
+      console.error(err);
     }
   });
 
-  // Animasi Partikel
-  const c = document.getElementById("particles");
-  const ctx = c.getContext("2d");
-  function resize() { c.width = innerWidth; c.height = innerHeight; }
-  window.addEventListener("resize", resize);
-  resize();
-  const particles = Array.from({ length: 60 }).map(() => ({
-    x: Math.random() * c.width,
-    y: Math.random() * c.height,
-    r: Math.random() * 2 + 1,
-    d: Math.random(),
-  }));
-  let angle = 0;
-  function draw() {
-    ctx.clearRect(0, 0, c.width, c.height);
-    ctx.fillStyle = "#ffd65a";
-    ctx.beginPath();
-    for (let p of particles) {
-      ctx.moveTo(p.x, p.y);
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+  // Auto redirect jika sudah login
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data?.session?.user) {
+      document.body.style.opacity = "0";
+      setTimeout(() => window.location.replace("/"), 400);
     }
-    ctx.fill();
-    update();
+  } catch (err) {
+    console.error("Auto login check error:", err);
   }
-  function update() {
-    angle += 0.002;
-    for (let p of particles) {
-      p.y += Math.cos(angle + p.d) + 0.4;
-      p.x += Math.sin(angle) * 0.3;
-      if (p.y > c.height) Object.assign(p, { x: Math.random() * c.width, y: 0 });
-    }
+});
+
+// Partikel animasi
+const c = document.getElementById("particles");
+const ctx = c.getContext("2d");
+function resize() {
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+const particles = Array.from({ length: 60 }).map(() => ({
+  x: Math.random() * c.width,
+  y: Math.random() * c.height,
+  r: Math.random() * 2 + 1,
+  d: Math.random(),
+}));
+let angle = 0;
+function draw() {
+  ctx.clearRect(0, 0, c.width, c.height);
+  ctx.fillStyle = "#ffd65a";
+  ctx.beginPath();
+  for (let p of particles) {
+    ctx.moveTo(p.x, p.y);
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
   }
-  setInterval(draw, 33);
-  </script>
+  ctx.fill();
+  update();
+}
+function update() {
+  angle += 0.002;
+  for (let p of particles) {
+    p.y += Math.cos(angle + p.d) + 0.4;
+    p.x += Math.sin(angle) * 0.3;
+    if (p.y > c.height)
+      Object.assign(p, { x: Math.random() * c.width, y: 0 });
+  }
+}
+setInterval(draw, 33);
+</script>
 </body>
 </html>
