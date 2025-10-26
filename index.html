@@ -1372,49 +1372,57 @@ window.addEventListener('load', async () => {
 <script src="/login/supabase.js"></script>
 
 <script>
-document.addEventListener("DOMContentLoaded", async () => {
-  // Sembunyikan tampilan dulu
+(async () => {
+  // Bersihkan tampilan dulu
   document.body.style.opacity = "0";
   document.body.style.transition = "opacity 0.3s ease";
 
-  // Tunggu sampai Supabase siap digunakan
+  // Tunggu Supabase siap
   await new Promise((resolve) => {
-    const checkReady = setInterval(() => {
+    const check = setInterval(() => {
       if (window.supabaseClient?.auth) {
-        clearInterval(checkReady);
+        clearInterval(check);
         resolve();
       }
     }, 100);
   });
 
+  // Tunggu 0.3 detik biar token kebaca
+  await new Promise(r => setTimeout(r, 300));
+
   try {
-    // Ambil session dari storage Supabase
-    const { data, error } = await supabaseClient.auth.getSession();
-
-    if (error) throw error;
-
+    const { data } = await supabaseClient.auth.getSession();
     const session = data?.session;
-    const syncStatus = document.getElementById("syncStatus");
 
+    // Pastikan URL bersih dari /index.html
+    if (window.location.pathname.endsWith("/index.html")) {
+      history.replaceState(null, "", "/");
+    }
+
+    // ✅ Jika login, tampilkan halaman
     if (session?.user) {
-      // ✅ User login aktif
       const user = session.user;
-      console.log("✅ Login aktif:", user.email);
+      console.log("✅ Login:", user.email);
+      const syncStatus = document.getElementById("syncStatus");
       if (syncStatus) {
         syncStatus.textContent = `☁️ Online — ${user.email}`;
         syncStatus.style.background = "#00ff7f";
       }
       document.body.style.opacity = "1";
-    } else {
-      // 🚪 Tidak ada session → arahkan ke login
-      console.warn("⚠️ Tidak ada session, arahkan ke login...");
-      window.location.href = "/login/";
+    } 
+    // 🚪 Jika belum login, arahkan ke /login/ (sekali aja)
+    else if (!window.location.pathname.startsWith("/login")) {
+      console.warn("⚠️ Belum login → redirect /login/");
+      window.location.replace("/login/");
     }
+
   } catch (err) {
     console.error("❌ Auth error:", err);
-    window.location.href = "/login/";
+    if (!window.location.pathname.startsWith("/login")) {
+      window.location.replace("/login/");
+    }
   }
-});
+})();
 </script>
 
 <script>
