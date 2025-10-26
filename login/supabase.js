@@ -1,5 +1,6 @@
 /* ==========================================================
-   Supabase Sync Module — TradersXAUUSD (Final GitHub Pages Fix)
+   Supabase Sync Module – TradersXAUUSD (Final Fix)
+   File: /login/supabase.js
    ========================================================== */
 
 if (!window._supabaseInitialized) {
@@ -7,8 +8,7 @@ if (!window._supabaseInitialized) {
 
   // ===== KONFIGURASI SUPABASE =====
   const SUPABASE_URL = "https://zejfddhbvqzuzjnxaqcy.supabase.co";
-  const SUPABASE_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplamZkZGhidnF6dXpqbnhhcWN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5MzEwNzIsImV4cCI6MjA3NjUwNzA3Mn0.YMYUSHarC5aVLVuXTvi3QmgJ7ZlUOVGHYoueixSffUQ";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplamZkZGhidnF6dXpqbnhhcWN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5MzEwNzIsImV4cCI6MjA3NjUwNzA3Mn0.YMYUSHarC5aVLVuXTvi3QmgJ7ZlUOVGHYoueixSffUQ";
 
   // ===== INISIALISASI CLIENT =====
   const { createClient } = window.supabase;
@@ -22,67 +22,194 @@ if (!window._supabaseInitialized) {
     },
   });
 
-  // ===== UTIL: TOAST STATUS =====
-  function showToast(msg, emoji = "💡") {
-    const el = document.createElement("div");
-    el.textContent = `${emoji} ${msg}`;
-    Object.assign(el.style, {
-      position: "fixed",
-      bottom: "20px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      background: "rgba(25,25,25,0.9)",
-      color: "#ffd65a",
-      padding: "10px 18px",
-      border: "1px solid rgba(255,214,90,0.5)",
-      borderRadius: "10px",
-      fontWeight: "600",
-      opacity: "0",
-      zIndex: 9999,
-      transition: "all 0.4s ease",
-    });
-    document.body.appendChild(el);
-    setTimeout(() => (el.style.opacity = "1"), 50);
-    setTimeout(() => {
-      el.style.opacity = "0";
-      el.style.transform = "translateY(20px)";
-      setTimeout(() => el.remove(), 400);
-    }, 2500);
-  }
+  console.log("✅ Supabase client initialized");
 
-  // ===== AUTH: LOGIN EMAIL / PASSWORD =====
-  async function loginWithEmail(email, password) {
-    try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) throw error;
-      showToast("Login sukses, mengarahkan...", "✅");
-      setTimeout(() => window.location.replace("https://jurnaltradersxauusd.my.id/"), 1000);
-    } catch (err) {
-      console.error("Login error:", err.message);
-      showToast("Terjadi kesalahan koneksi.", "⚠️");
-    }
-  }
-
-  // ===== CEK USER SUDAH LOGIN =====
-  async function checkSession() {
-    try {
-      const { data } = await supabaseClient.auth.getUser();
-      if (data.user) {
-        console.log("🔒 Sudah login sebagai:", data.user.email);
-        window.location.href = "/index.html";
+  // ===== SYNC HANDLER (CRUD Operations) =====
+  window.SupabaseSync = {
+    // Fetch semua data dari cloud
+    async fetchAll() {
+      if (!window.supabaseClient) {
+        console.warn('⚠️ Supabase client tidak tersedia');
+        return [];
       }
-    } catch (err) {
-      console.warn("Belum login:", err.message);
+
+      try {
+        const { data: sessionData } = await window.supabaseClient.auth.getSession();
+        if (!sessionData?.session?.user) {
+          console.warn('⚠️ User belum login');
+          return [];
+        }
+
+        const userId = sessionData.session.user.id;
+
+        const { data, error } = await window.supabaseClient
+          .from('trades')
+          .select('*')
+          .eq('user_id', userId)
+          .order('trade_date', { ascending: false });
+
+        if (error) throw error;
+
+        console.log(`☁️ Berhasil mengambil ${data?.length || 0} data dari cloud`);
+        return data || [];
+
+      } catch (err) {
+        console.error('❌ Gagal fetch data:', err.message);
+        return [];
+      }
+    },
+
+    // Push data baru ke cloud
+    async push(trade) {
+      if (!window.supabaseClient) {
+        console.warn('⚠️ Supabase client tidak tersedia');
+        return false;
+      }
+
+      try {
+        const { data: sessionData } = await window.supabaseClient.auth.getSession();
+        if (!sessionData?.session?.user) {
+          console.warn('⚠️ User belum login - data hanya disimpan lokal');
+          return false;
+        }
+
+        const userId = sessionData.session.user.id;
+
+        // Mapping data trade ke struktur tabel Supabase
+        const payload = {
+          user_id: userId,
+          trade_date: trade.date,
+          pair: trade.pair,
+          type: trade.type,
+          entry: parseFloat(trade.entry),
+          exit: parseFloat(trade.exit),
+          pips: parseFloat(trade.pips),
+          note: trade.note || ''
+        };
+
+        // Jika ID lokal (dimulai dengan 'id-'), insert baru
+        let result;
+        if (!trade.id || trade.id.startsWith('id-')) {
+          const { data, error } = await window.supabaseClient
+            .from('trades')
+            .insert([payload])
+            .select();
+
+          if (error) throw error;
+          result = data?.[0];
+          
+          // Update ID lokal dengan ID dari database
+          if (result?.id) {
+            trade.id = result.id;
+          }
+        } else {
+          // Update existing
+          const { data, error } = await window.supabaseClient
+            .from('trades')
+            .update(payload)
+            .eq('id', trade.id)
+            .eq('user_id', userId)
+            .select();
+
+          if (error) throw error;
+          result = data?.[0];
+        }
+
+        console.log('☁️ Data berhasil disinkronkan ke cloud');
+        return result;
+
+      } catch (err) {
+        console.error('❌ Gagal push data:', err.message);
+        return false;
+      }
+    },
+
+    // Delete data dari cloud
+    async delete(tradeId) {
+      if (!window.supabaseClient) return false;
+
+      try {
+        const { data: sessionData } = await window.supabaseClient.auth.getSession();
+        if (!sessionData?.session?.user) {
+          return false;
+        }
+
+        const userId = sessionData.session.user.id;
+
+        const { error } = await window.supabaseClient
+          .from('trades')
+          .delete()
+          .eq('id', tradeId)
+          .eq('user_id', userId);
+
+        if (error) throw error;
+
+        console.log('🗑️ Data berhasil dihapus dari cloud');
+        return true;
+
+      } catch (err) {
+        console.error('❌ Gagal delete data:', err.message);
+        return false;
+      }
     }
+  };
+
+  // ===== AUTH STATE LISTENER =====
+  if (window.supabaseClient) {
+    window.supabaseClient.auth.onAuthStateChange((event, session) => {
+      console.log('🔐 Auth event:', event);
+
+      switch (event) {
+        case 'SIGNED_IN':
+          console.log('✅ User berhasil login:', session?.user?.email);
+          break;
+
+        case 'SIGNED_OUT':
+          console.log('🚪 User logout');
+          localStorage.clear();
+          if (!window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login/';
+          }
+          break;
+
+        case 'TOKEN_REFRESHED':
+          console.log('🔄 Token berhasil di-refresh');
+          break;
+      }
+    });
   }
 
-  window.loginWithEmail = loginWithEmail;
-  window.checkSession = checkSession;
+  // ===== HELPER: Check Auth Status =====
+  window.checkAuthStatus = async function() {
+    if (!window.supabaseClient) return null;
 
-  document.addEventListener("DOMContentLoaded", checkSession);
+    try {
+      const { data, error } = await window.supabaseClient.auth.getSession();
+      
+      if (error) {
+        console.error('❌ Error checking auth:', error);
+        return null;
+      }
+
+      return data?.session || null;
+    } catch (err) {
+      console.error('❌ Auth check failed:', err);
+      return null;
+    }
+  };
+
+  // ===== HELPER: Logout Function =====
+  window.logoutUser = async function() {
+    if (!window.supabaseClient) return;
+
+    try {
+      await window.supabaseClient.auth.signOut();
+      localStorage.clear();
+      window.location.href = '/login/';
+    } catch (err) {
+      console.error('❌ Logout error:', err);
+    }
+  };
+
+  console.log('📦 Supabase module loaded successfully');
 }
-
