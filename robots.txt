@@ -3,7 +3,7 @@
 User-agent: *
 Allow: /
 
-# Block admin/private folders
+# Block folders that shouldn't be crawled
 Disallow: /admin/
 Disallow: /private/
 Disallow: /api/
@@ -12,12 +12,12 @@ Disallow: /tmp/
 # Sitemap location
 Sitemap: https://jurnaltradersxauusd.my.id/sitemap.xml
 
-# Specific bot rules
+# Bot-specific rules
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
-# Crawl delay for polite bots
+# Polite crawl delay
 Crawl-delay: 5
