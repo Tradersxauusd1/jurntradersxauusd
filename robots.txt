@@ -1,25 +1,23 @@
+# robots.txt for jurnaltradersxauusd.my.id
+
 User-agent: *
 Allow: /
 
-# ✅ Whitelist bot utama
-User-agent: Googlebot
-User-agent: AdsBot-Google
-User-agent: Bingbot
-User-agent: FacebookBot
-User-agent: Meta-ExternalFetcher
-User-agent: GPTBot
-User-agent: ClaudeBot
-Allow: /
-
-# 🚫 Folder privat (tetap aman)
+# Block admin/private folders
 Disallow: /admin/
 Disallow: /private/
-Disallow: /tmp/
 Disallow: /api/
+Disallow: /tmp/
 
-# ✅ Sitemap untuk indexing
+# Sitemap location
 Sitemap: https://jurnaltradersxauusd.my.id/sitemap.xml
 
-# ✅ PWA friendly header hint (optional tapi bagus)
-User-agent: *
-Disallow:
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Crawl delay for polite bots
+Crawl-delay: 5
