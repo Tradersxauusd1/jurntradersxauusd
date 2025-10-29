@@ -4,10 +4,14 @@
 
 const CACHE_NAME = "tradersxauusd-final-v6";
 const ASSETS = [
-  "/", "/index.html", 
-  "/login/index.html", "/app/index.html",  // ← ADD THESE
-  "/manifest.json", "/popup-ads.js", 
-  "/icon-192.png", "/icon-512.png",
+  "/", 
+  "/index.html",
+  "/login/index.html",      // ← Sudah benar
+  "/app/index.html",        // ← Sudah benar  
+  "/manifest.json",
+  "/popup-ads.js", 
+  "/icon-192.png", 
+  "/icon-512.png",
   "/telegram.html",
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
   "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"
@@ -80,5 +84,6 @@ self.addEventListener("message", e => {
     console.log("🧹 [SW] Cache cleared manually");
   }
 });
+
 
 
