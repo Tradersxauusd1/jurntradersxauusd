@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
+  <!-- Landing Page (Homepage) -->
   <url>
     <loc>https://jurnaltradersxauusd.my.id/</loc>
     <lastmod>2025-01-28</lastmod>
-    <changefreq>daily</changefreq>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
+  <!-- Dashboard (Jurnal App) -->
+  <url>
+    <loc>https://jurnaltradersxauusd.my.id/dashboard.html</loc>
+    <lastmod>2025-01-28</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Login Page -->
   <url>
     <loc>https://jurnaltradersxauusd.my.id/login/</loc>
     <lastmod>2025-01-28</lastmod>
