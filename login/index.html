@@ -378,9 +378,9 @@ document.addEventListener("DOMContentLoaded", async () => {
           const ok = await waitForSession();
           if (ok) {
             document.body.style.opacity = "0";
-            setTimeout(() => (window.location.href = "/"), 500);
+            setTimeout(() => (window.location.href = "/app/"), 500);
           } else {
-            setTimeout(() => (window.location.href = "/"), 2000);
+            setTimeout(() => (window.location.href = "/app/"), 2000);
           }
         } else {
           // Reset form setelah signup berhasil
@@ -406,7 +406,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const { data } = await supabaseClient.auth.getSession();
     if (data?.session?.user) {
       document.body.style.opacity = "0";
-      setTimeout(() => window.location.replace("/"), 400);
+      setTimeout(() => window.location.replace("/app/"), 400);
     }
   } catch (err) {
     console.error("Auto login check error:", err);
@@ -453,4 +453,5 @@ setInterval(draw, 33);
 </script>
   </body>
 </html>
+
 
