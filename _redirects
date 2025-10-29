@@ -1,2 +1,59 @@
-/ /index.html 200
-/login /login/index.html 200
+# ============================================
+# REDIRECTS for jurnaltradersxauusd.my.id
+# ============================================
+
+# --- Clean URLs & Aliases ---
+/jurnal            /app/              301
+/dashboard         /app/              301
+/journal           /app/              301
+/trade             /app/              301
+
+/signup            /login/            301
+/register          /login/            301
+/sign-up           /login/            301
+/daftar            /login/            301
+
+/masuk             /login/            301
+/log-in            /login/            301
+
+# --- External Redirects (AI Premium) ---
+/ai                https://tradersxauusd.my.id                301
+/premium           https://tradersxauusd.my.id                301
+/upgrade           https://tradersxauusd.my.id                301
+/ai-chart          https://tradersxauusd.my.id                301
+/chart-analysis    https://tradersxauusd.my.id                301
+
+# --- Direct Payment Links ---
+/buy-1             https://tradersxauusd.myr.id/plink/ai-chart-analisis-by-tradersxauusd-akses-1-bulan           301
+/buy-3             https://tradersxauusd.myr.id/plink/ai-chart-analisis-by-tradersxauusd-akses-3-bulan-os66       301
+/buy-6             https://tradersxauusd.myr.id/plink/ai-chart-analisis-by-tradersxauusd-akses-6-bulan-os66-hde6  301
+
+/beli              https://tradersxauusd.myr.id/plink/ai-chart-analisis-by-tradersxauusd-akses-6-bulan-os66-hde6  301
+/beli-ai           https://tradersxauusd.myr.id/plink/ai-chart-analisis-by-tradersxauusd-akses-6-bulan-os66-hde6  301
+
+# --- Social Media Shortcuts ---
+/telegram          https://t.me/Tradersxauusd                 302
+/tg                https://t.me/Tradersxauusd                 302
+/youtube           https://youtube.com/@Tradersxauusd         302
+/yt                https://youtube.com/@Tradersxauusd         302
+/tiktok            https://www.tiktok.com/@Tradersxauusd      302
+/tt                https://www.tiktok.com/@Tradersxauusd      302
+
+# --- Help & Support ---
+/help              /                                           302
+/support           https://t.me/Tradersxauusd                 302
+/contact           https://t.me/Tradersxauusd                 302
+/bantuan           https://t.me/Tradersxauusd                 302
+
+# --- Marketing Campaign Tracking ---
+/promo             /login/                                     302
+/free              /login/                                     302
+/gratis            /login/                                     302
+/trial             /login/                                     302
+
+# --- Old URLs (jika ada perubahan struktur) ---
+# /old-login       /login/                                     301
+# /beta            /app/                                       301
+
+# --- Fallback: Catch-all 404 ---
+/*                 /404.html                                   404
