@@ -139,15 +139,12 @@
       
       // Define redirect rules
       const redirects = {
+        '/login': '/login/',
+        '/login/': '/login/', 
+        '/app': '/app/',
+        '/app/': '/app/',
         '/signup': '/login/',
-        '/signup/': '/login/',
-        '/lg': null,  // Ignore
-        '/lg/': null,  // Ignore
-        '/jurnal': null,  // Ignore
-        '/jurnal/': null,  // Ignore
-        '/buy-6': '/buy/payment.html',
-        '/buy-6/': '/buy/payment.html',
-        '/buy': '/buy/payment.html'
+        '/dashboard': '/app/'
       };
 
       // Check if current path needs redirect
@@ -186,3 +183,4 @@
 
 </body>
 </html>
+
