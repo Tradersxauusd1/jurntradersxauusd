@@ -1,8 +1,3 @@
-# ============================================
-# REDIRECTS for jurnaltradersxauusd.my.id
-# ============================================
-
-# --- Clean URLs & Aliases ---
 /jurnal            /app/              301
 /dashboard         /app/              301
 /journal           /app/              301
