@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>404 - Halaman Tidak Ditemukan | TradersXauusd</title>
+  <title>404 - Halaman Tidak Ditemukan</title>
+  
   <style>
     * {
       margin: 0;
@@ -12,21 +13,21 @@
     }
     
     body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
+      color: #fff;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #fff;
-      text-align: center;
       padding: 20px;
     }
-    
+
     .container {
+      text-align: center;
       max-width: 600px;
     }
-    
+
     .error-code {
       font-size: 120px;
       font-weight: 800;
@@ -35,69 +36,152 @@
       -webkit-text-fill-color: transparent;
       background-clip: text;
       margin-bottom: 20px;
+      animation: pulse 2s infinite;
     }
-    
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
     h1 {
       font-size: 32px;
       color: #FFD65A;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
     }
-    
+
     p {
       font-size: 18px;
-      color: #aaa;
+      color: #ddd;
       margin-bottom: 40px;
       line-height: 1.6;
     }
-    
+
+    .btn-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
     .btn {
+      padding: 15px 35px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      transition: all 0.3s;
       display: inline-block;
-      padding: 16px 40px;
+    }
+
+    .btn-primary {
       background: linear-gradient(135deg, #FFD65A, #FFDB70);
       color: #000;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 700;
-      transition: all 0.3s;
-      margin: 0 10px;
     }
-    
-    .btn:hover {
+
+    .btn-primary:hover {
       transform: translateY(-3px);
-      box-shadow: 0 10px 30px rgba(255, 214, 90, 0.5);
+      box-shadow: 0 10px 25px rgba(255, 214, 90, 0.4);
     }
-    
+
     .btn-secondary {
       background: transparent;
       border: 2px solid #FFD65A;
       color: #FFD65A;
     }
-    
+
     .btn-secondary:hover {
       background: #FFD65A;
       color: #000;
+      transform: translateY(-3px);
     }
-    
+
+    .loading {
+      display: none;
+      margin-top: 30px;
+      color: #FFD65A;
+      font-size: 16px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
     @media (max-width: 600px) {
       .error-code { font-size: 80px; }
       h1 { font-size: 24px; }
       p { font-size: 16px; }
-      .btn { display: block; margin: 10px 0; }
     }
   </style>
 </head>
 <body>
+
   <div class="container">
     <div class="error-code">404</div>
     <h1>Oops! Halaman Tidak Ditemukan</h1>
-    <p>
-      Halaman yang Anda cari tidak ada atau telah dipindahkan. 
-      Kembali ke homepage atau mulai jurnal trading Anda sekarang!
-    </p>
-    <div>
-      <a href="/" class="btn">🏠 Kembali ke Home</a>
+    <p id="message">Halaman yang Anda cari tidak ada atau telah dipindahkan. Kembali ke homepage atau mulai jurnal trading Anda sekarang!</p>
+    
+    <div class="btn-group">
+      <a href="/" class="btn btn-primary">🏠 Kembali ke Home</a>
       <a href="/login/" class="btn btn-secondary">📊 Mulai Jurnal</a>
     </div>
+
+    <div class="loading" id="loading">
+      ⏳ Mengalihkan halaman...
+    </div>
   </div>
+
+  <script>
+    // Smart redirect for GitHub Pages
+    (function() {
+      const path = window.location.pathname;
+      const searchParams = window.location.search;
+      
+      // Define redirect rules
+      const redirects = {
+        '/signup': '/login/',
+        '/signup/': '/login/',
+        '/lg': null,  // Ignore
+        '/lg/': null,  // Ignore
+        '/jurnal': null,  // Ignore
+        '/jurnal/': null,  // Ignore
+        '/buy-6': '/buy/',  // Redirect to payment page (you'll need to create this)
+        '/buy-6/': '/buy/'
+      };
+
+      // Check if current path needs redirect
+      if (redirects.hasOwnProperty(path)) {
+        const target = redirects[path];
+        
+        if (target) {
+          // Show loading message
+          document.getElementById('loading').classList.add('show');
+          document.getElementById('message').textContent = 'Mengalihkan Anda ke halaman yang tepat...';
+          
+          // Redirect after short delay
+          setTimeout(() => {
+            window.location.href = target + searchParams;
+          }, 500);
+          return;
+        }
+      }
+
+      // For /login/ and /app/ paths, try to load the correct page
+      // This handles the case where GitHub Pages doesn't find index.html
+      if (path === '/login' || path === '/app') {
+        // Add trailing slash
+        window.location.href = path + '/' + searchParams;
+        return;
+      }
+
+      // If it's already a directory path with trailing slash, show 404
+      // (This means the index.html file is genuinely missing)
+      if (path.endsWith('/') && (path === '/login/' || path === '/app/')) {
+        document.getElementById('message').textContent = 
+          'Halaman ini sedang dalam pengembangan. Silakan kembali nanti atau hubungi support.';
+      }
+    })();
+  </script>
+
 </body>
 </html>
