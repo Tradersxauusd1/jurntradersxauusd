@@ -207,7 +207,7 @@ function showToast(msg){const toast=document.createElement('div');toast.classNam
 <footer class="fade-in" style="margin-top:18px">© 2025 TradersXauusd | Jurnal Trading Emas</footer>
 
 <div class="support-banner" id="supportBanner">
-  <img src="/icon-192.png" alt="Support TradersXauusd">
+  <img src="../icon-192.png" alt="Support TradersXauusd">
   <div class="text"><strong>Dukung Pengembang</strong><span>Bantu kembangkan fitur & server TradersXauusd 💛</span></div>
   <a href="http://lynk.id/tradersxauusd/s/gg485q0k32gp?utm_source=site&utm_medium=banner&utm_campaign=support_tradersxauusd" target="_blank" rel="noopener noreferrer nofollow">
     <button class="btn">Dukung Sekarang</button>
@@ -283,10 +283,10 @@ window.addEventListener('load',function(){createCharts();updateAll()});
 </script>
 
 <script>
-if('serviceWorker' in navigator){navigator.serviceWorker.register('/service-worker.js').then(()=>console.log('✅ Service Worker aktif dan berjalan')).catch(err=>console.log('❌ Gagal register Service Worker:',err))}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('../service-worker.js').then(()=>console.log('✅ Service Worker aktif dan berjalan')).catch(err=>console.log('❌ Gagal register Service Worker:',err))}
 </script>
 
-<script src="/popup-ads.js"></script>
+<script src="../popup-ads.js"></script>
 <script>
 window.addEventListener('load',()=>{setTimeout(()=>{if(typeof showPopupAd==='function'){try{showPopupAd()}catch(e){console.warn('popup error',e)}}},7000)});
 </script>
@@ -300,7 +300,7 @@ window.addEventListener("load",()=>{const banner=document.getElementById("suppor
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/login/supabase.js"></script>
+<script src="../login/supabase.js"></script>
 
 <script>
 (function(){const saveTradeBtnOriginal=document.getElementById('saveTradeBtn');if(saveTradeBtnOriginal){const newSaveBtn=saveTradeBtnOriginal.cloneNode(true);saveTradeBtnOriginal.parentNode.replaceChild(newSaveBtn,saveTradeBtnOriginal);newSaveBtn.addEventListener('click',async function(){updateAutoPips();await new Promise(r=>setTimeout(r,250));const newTrade={id:generateId(),date:document.getElementById('tanggal')?.value||new Date().toISOString().slice(0,10),pair:(document.getElementById('pair')?.value||'XAUUSD').toUpperCase(),type:document.getElementById('tipe')?.value||'buy',entry:document.getElementById('entry')?.value||'',exit:document.getElementById('exit')?.value||'',pips:parseFloat(document.getElementById('pips')?.value)||0,note:document.getElementById('note')?.value||''};if(!newTrade.entry||!newTrade.exit){showToast('⚠️ Entry dan Exit harus diisi!');return}trades.push(newTrade);localStorage.setItem('trades',JSON.stringify(trades));renderTrades();updateAll();if(typeof SupabaseSync!=='undefined'&&SupabaseSync.push){try{const result=await SupabaseSync.push(newTrade);if(result&&result.id){newTrade.id=result.id;const idx=trades.length-1;trades[idx]=newTrade;localStorage.setItem('trades',JSON.stringify(trades))}showToast("☁️ Trade tersimpan & tersinkron!")}catch(err){console.warn("⚠️ Sync error:",err);showToast("💾 Trade disimpan (offline mode)")}}else{showToast("💾 Trade disimpan lokal")}document.getElementById('entry').value='';document.getElementById('exit').value='';document.getElementById('pips').value='';document.getElementById('note').value='';this.blur()})}})();
