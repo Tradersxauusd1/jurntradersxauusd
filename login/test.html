@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Supabase Test</title>
+
+  <!-- Handler Error JS Global -->
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      document.body.innerHTML = "<h2 style='color:red'>Error JS: " + msg + "</h2>" +
+        (error && error.stack ? "<pre>" + error.stack + "</pre>" : "");
+    };
+  </script>
+</head>
+<body style="font-family:sans-serif; background:#222; color:#ffd65a; padding:2em;">
+  <h2>Login Supabase Test (WebView/Android)</h2>
+  <form id="f" style="max-width:300px;margin:auto;">
+    <input id="e" type="email" placeholder="Email" required style="width:100%;margin:10px 0"><br>
+    <input id="p" type="password" placeholder="Password" required style="width:100%;margin:10px 0"><br>
+    <button type="submit" style="width:100%;padding:12px;margin:10px 0">Login</button>
+  </form>
+  <pre id="msg" style="color:#ff7575; margin-top:2em;"></pre>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const client = window.supabase.createClient(
+      "https://zejfddhbvqzuzjnxaqcy.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplamZkZGhidnF6dXpqbnhhcWN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA5MzEwNzIsImV4cCI6MjA3NjUwNzA3Mn0.YMYUSHarC5aVLVuXTvi3QmgJ7ZlUOVGHYoueixSffUQ"
+    );
+    document.getElementById('f').onsubmit = async function(ev){
+      ev.preventDefault();
+      msg.textContent = "Memproses login...";
+      try {
+        const res = await client.auth.signInWithPassword({
+          email: e.value, password: p.value
+        });
+        msg.textContent = JSON.stringify(res, null, 2);
+        // Jika sukses, redirect ke /app
+        if (res.data && res.data.session && res.data.session.user) {
+          location.href = "/app/";
+        }
+      } catch (err) {
+        msg.textContent = "LOGIN ERROR: " + err.message;
+      }
+    };
+  </script>
+</body>
+</html>
