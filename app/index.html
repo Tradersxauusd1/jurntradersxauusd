@@ -3,12 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Jurnal Trading by TradersXauusd</title>
   <meta name="theme-color" content="#d4af37" />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" type="image/png" href="icon-192.png">
-  <title>Jurnal Trading by TradersXauusd</title>
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      document.body.style.opacity = "1";
+      document.body.innerHTML =
+        "<h2 style='color:red; text-align:center;'>Error JS: "
+        + msg + "<br><pre style='text-align:left;'>" + (error && error.stack ? error.stack : "") + "</pre><br><button onclick='location.reload()' style='padding:12px 20px;border-radius:10px;'>Reload</button></h2>";
+    };
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../login/supabase.js"></script>
+  
 <style>
 :root{--bg:#070707;--surface:#141414;--panel:#111;--gold:#d4af37;--gold-glow:rgba(212,175,55,0.45);--muted:#9c9c9c;--profit:#00ff7f;--loss:#ff4757;--border:rgba(255,255,255,0.04)}
 *{box-sizing:border-box}
@@ -314,3 +324,4 @@ console.log('✅ Critical fixes loaded successfully');
 
 </body>
 </html>
+
